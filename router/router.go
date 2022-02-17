@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gorilla/sessions"
+
 	"github.com/edfan0930/aha/domain/user"
 
 	"github.com/edfan0930/aha/common/email"
 
 	"github.com/edfan0930/aha/common/oauth"
+	"github.com/edfan0930/aha/common/storage"
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 )
@@ -88,6 +91,30 @@ func InitRouter() {
 		c.JSON(http.StatusOK, token)
 
 		//		c.JSON(http.StatusOK, c.Query("code"))
+	})
+
+	r.GET("/session/get", func(c *gin.Context) {
+		store, err := storage.Store.Get(c.Request, "user")
+		if err != nil {
+			fmt.Println("err", err)
+		}
+		fmt.Printf("store:%s", store)
+	})
+
+	r.GET("/session/new", func(c *gin.Context) {
+		storage.Store = sessions.NewCookieStore([]byte(storage.GenerSessionID()))
+		c.JSON(http.StatusOK, "hello world")
+	})
+
+	r.GET("/session/set", func(c *gin.Context) {
+		//		c.Cookie
+		store, _ := storage.Store.Get(c.Request, "user")
+		store.Values["age"] = 18
+		err := store.Save(c.Request, c.Writer)
+		if err != nil {
+			return
+		}
+		fmt.Println("hello world")
 	})
 
 	r.GET("/email", func(c *gin.Context) {

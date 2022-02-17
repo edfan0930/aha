@@ -1,5 +1,6 @@
 package db
 
+/*
 import (
 	"fmt"
 
@@ -39,3 +40,4 @@ func NewMaria(user, password, host, dbName string) (*Maria, error) {
 func (m *Maria) Close() {
 	m.db.Close()
 }
+*/
