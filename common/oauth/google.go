@@ -6,18 +6,20 @@ import (
 	"io/ioutil"
 	"time"
 
+	"github.com/gin-gonic/gin/internal/json"
+
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
 
 const (
-	UserInfoURL = "https://www.googleapis.com/oauth2/v3/userinfo"
+	GoogleUserInfoURL = "https://www.googleapis.com/oauth2/v3/userinfo"
 )
 
 type (
-	GoogleOath2 struct {
+	GoogleOauth2 struct {
 		Config   *oauth2.Config
-		Token    Token
+		Token    *oauth2.Token
 		Response struct {
 			Sub           string `json:"sub"`
 			Name          string `json:"name"`
@@ -74,15 +76,44 @@ var googleConfig = &oauth2.Config{
 	Endpoint: google.Endpoint,
 }
 
+//NewGoogleOauth2
+func NewGoogleOauth2() *GoogleOauth2 {
+	return &GoogleOauth2{
+		Config: googleConfig,
+	}
+}
+
 func GoogleOAuthURL() string {
 
 	return googleConfig.AuthCodeURL("state")
 }
 
-//GoogleExchange
-func GoogleExchange(ctx context.Context, code string, opts ...oauth2.AuthCodeOption) (*oauth2.Token, error) {
+//Exchange
+func (g *GoogleOauth2) Exchange(ctx context.Context, code string, opts ...oauth2.AuthCodeOption) error {
 
-	return googleConfig.Exchange(ctx, code, opts...)
+	token, err := Exchange(g.Config, ctx, code, opts...)
+	if err != nil {
+		return err
+	}
+	g.Token = token
+	return nil
+}
+
+//Client
+func (g *GoogleOauth2) Client(ctx context.Context) error {
+	client := g.Config.Client(ctx, g.Token)
+	res, getErr := client.Get(GoogleUserInfoURL)
+	if getErr != nil {
+		fmt.Println("google client getErr:", getErr)
+		return
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != 200 {
+	}
+
+	rawData, _ := ioutil.ReadAll(res.Body)
+	return json.Unmarshal(rawData, &g.Response)
 }
 
 func GoogleClient(ctx context.Context, token *oauth2.Token) {

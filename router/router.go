@@ -7,8 +7,6 @@ import (
 
 	"github.com/gorilla/sessions"
 
-	"github.com/edfan0930/aha/domain/user"
-
 	"github.com/edfan0930/aha/common/email"
 
 	"github.com/edfan0930/aha/common/oauth"
@@ -23,8 +21,11 @@ func InitRouter() {
 	r := gin.Default()
 	r.Use(requestid.New())
 
-	u := r.Group("/user")
-	u.POST("/signup", user.Signup)
+	u := r.Group("/user", func(c *gin.Context) {
+
+	})
+
+	//	u.POST("/signup", user.Signup)
 	r.GET("/callback", func(c *gin.Context) {
 		s := c.Query("state")
 		fmt.Println("state:", s)
@@ -77,19 +78,24 @@ func InitRouter() {
 
 	r.GET("/main", func(c *gin.Context) {
 
-		code := c.Query("code")
-		token, err := oauth.FacebookExchange(context.Background(), code)
-		if err != nil {
-			c.JSON(http.StatusOK, err.Error())
-			return
-		}
-		if token.AccessToken != "" {
-			oauth.FacebookClient(context.Background(), token)
-			return
-		}
-		fmt.Println("AccessToken empty")
-		c.JSON(http.StatusOK, token)
-
+		fmt.Println("path", c.Request.URL)
+		c.Request.URL.Path = "/session/new"
+		r.HandleContext(c)
+		return
+		c.Redirect(http.StatusSeeOther, "http://localhost:3000/session/new")
+		/* 		code := c.Query("code")
+		   		token, err := oauth.FacebookExchange(context.Background(), code)
+		   		if err != nil {
+		   			c.JSON(http.StatusOK, err.Error())
+		   			return
+		   		}
+		   		if token.AccessToken != "" {
+		   			oauth.FacebookClient(context.Background(), token)
+		   			return
+		   		}
+		   		fmt.Println("AccessToken empty")
+		   		c.JSON(http.StatusOK, token)
+		*/
 		//		c.JSON(http.StatusOK, c.Query("code"))
 	})
 
@@ -120,6 +126,13 @@ func InitRouter() {
 	r.GET("/email", func(c *gin.Context) {
 		email.VerificationEmail([]string{""})
 	})
+
+	signup := u.Group("/signup")
+	signup.GET("", func(c *gin.Context) {
+		fmt.Println("signup")
+	})
+
+	signup.GET("/google",func(c *gin.Context){})
 
 	r.Run(":3000")
 }

@@ -40,7 +40,6 @@ func FacebookExchange(ctx context.Context, code string, opts ...oauth2.AuthCodeO
 }
 
 func FacebookClient(ctx context.Context, token *oauth2.Token) {
-	fmt.Println("in fb")
 	client := facebookConfig.Client(ctx, token)
 	res, getErr := client.Get(FBInfoURL + url.QueryEscape(token.AccessToken))
 	if getErr != nil {

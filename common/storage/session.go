@@ -3,18 +3,19 @@ package storage
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/gorilla/sessions"
 )
 
-func Get() {
+var Store *sessions.CookieStore
 
-	fmt.Println("store", Store)
+func init() {
+
+	Store = sessions.NewCookieStore([]byte(GenerSessionID()))
 }
-
-var Store = sessions.NewCookieStore([]byte(GenerSessionID()))
 
 //GenerSessionID
 func GenerSessionID() string {
@@ -23,8 +24,29 @@ func GenerSessionID() string {
 	if err != nil {
 		return ""
 	}
-	fmt.Println("uid", b)
+
 	return base64.URLEncoding.EncodeToString(b)
+}
+
+func Get() {
+
+	fmt.Println("store", Store)
+}
+
+func Login(s *sessions.Session) {
+	s.Values[StorageKey.Logged] = true
+}
+
+//LoggedOn get logged bool
+func LoggedOn(s *sessions.Session) (bool, error) {
+	l := s.Values[StorageKey.Logged]
+
+	logged, ok := l.(bool)
+	if !ok {
+		return false, errors.New("assert type error")
+	}
+
+	return logged, nil
 }
 
 func Handler(w http.ResponseWriter, r *http.Request, key string) {
