@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/url"
@@ -11,7 +12,15 @@ import (
 )
 
 const (
-	FBInfoURL = "https://graph.facebook.com/me?access_token="
+	FBInfoURL           = "https://graph.facebook.com/me?access_token="
+	FacebookRedirectURL = "http://localhost:3000/callbace/facebook"
+)
+
+type (
+	FacebookOauth2 struct {
+		Config *oauth2.Config
+		Token  *oauth2.Token
+	}
 )
 
 var facebookConfig = &oauth2.Config{
@@ -20,7 +29,7 @@ var facebookConfig = &oauth2.Config{
 	//憑證的 client_secret
 	ClientSecret: "872403eae1782bb895f2e4460608e660",
 	//當 Google auth server 驗證過後，接收從 Google auth server 傳來的資訊
-	RedirectURL: "http://localhost:3000/main",
+	RedirectURL: FacebookRedirectURL,
 	//告知 Google auth server 授權範圍，在這邊是取得用戶基本資訊和Email，Scopes 為 Google 提供
 	Scopes: []string{
 		"email",
@@ -31,14 +40,37 @@ var facebookConfig = &oauth2.Config{
 }
 
 func FackbookOAuthURL() string {
-	return facebookConfig.AuthCodeURL("random")
+	return facebookConfig.AuthCodeURL(UUID)
 }
 
-func FacebookExchange(ctx context.Context, code string, opts ...oauth2.AuthCodeOption) (*oauth2.Token, error) {
+func (f *FacebookOauth2) Exchange(ctx context.Context, code string, opts ...oauth2.AuthCodeOption) error {
 
-	return facebookConfig.Exchange(ctx, code, opts...)
+	return Exchange(f.Config, ctx, code, f.Token, opts...)
 }
 
+func (f *FacebookOauth2) Request(ctx context.Context) error {
+
+	client := f.Config.Client(ctx, f.Token)
+	res, getErr := client.Get(GoogleUserInfoURL)
+	if getErr != nil {
+
+		return fmt.Errorf("client request error: %w", getErr)
+	}
+
+	defer res.Body.Close()
+
+	if res.StatusCode != 200 {
+
+		return errors.New(fmt.Sprintf("request http status code: %d", res.StatusCode))
+	}
+
+	rawData, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return fmt.Errorf("io reader error: %w", err)
+	}
+	fmt.Println("rawData", string(rawData))
+	return nil
+}
 func FacebookClient(ctx context.Context, token *oauth2.Token) {
 	client := facebookConfig.Client(ctx, token)
 	res, getErr := client.Get(FBInfoURL + url.QueryEscape(token.AccessToken))

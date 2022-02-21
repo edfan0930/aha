@@ -1,13 +1,12 @@
 package db
 
-/*
 import (
 	"fmt"
 
-	//	_ "github.com/go-sql-driver/mysql"
-	//"github.com/jinzhu/gorm"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/jinzhu/gorm"
+	//"gorm.io/driver/mysql"
+	//	"gorm.io/gorm"
 )
 
 const (
@@ -25,7 +24,7 @@ type Maria struct {
 //db, err := gorm.Open("mysql", "user:password@/dbname?charset=utf8&parseTime=True&loc=Local")
 //host ip:port
 func NewMaria(user, password, host, dbName string) (*Maria, error) {
-	mysql.Open("dst")
+	//mysql.Open("dst")
 	args := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=true&loc=UTC&timeout=30s", user, password, host, dbName)
 
 	//"%s:%s@tcp(%s)/%s?charset=utf8&parseTime=true&loc=UTC&timeout=30s"
@@ -40,4 +39,3 @@ func NewMaria(user, password, host, dbName string) (*Maria, error) {
 func (m *Maria) Close() {
 	m.db.Close()
 }
-*/

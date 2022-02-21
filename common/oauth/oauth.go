@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"fmt"
 
 	"golang.org/x/oauth2"
 )
@@ -15,9 +16,11 @@ func init() {
 }
 
 //Exchange
-func Exchange(config *oauth2.Config, ctx context.Context, code string, opts ...oauth2.AuthCodeOption) (*oauth2.Token, error) {
+func Exchange(config *oauth2.Config, ctx context.Context, code string, token *oauth2.Token, opts ...oauth2.AuthCodeOption) error {
 
-	return config.Exchange(ctx, code, opts...)
+	token, err := config.Exchange(ctx, code, opts...)
+	fmt.Println("is exchange err", err)
+	return err
 }
 
 //AuthURL
@@ -36,10 +39,9 @@ func generUUID() string {
 	b := make([]byte, 32)
 	_, err := rand.Read(b)
 	if err != nil {
+		fmt.Println("gener UUID failed: ", err)
 		return ""
 	}
 
 	return base64.URLEncoding.EncodeToString(b)
 }
-
-func Client()

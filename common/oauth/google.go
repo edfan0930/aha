@@ -2,11 +2,12 @@ package oauth
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"time"
 
-	"github.com/gin-gonic/gin/internal/json"
+	jsoniter "github.com/json-iterator/go"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -14,6 +15,7 @@ import (
 
 const (
 	GoogleUserInfoURL = "https://www.googleapis.com/oauth2/v3/userinfo"
+	GoogleRedirectURL = "http://localhost:3000/callback/google"
 )
 
 type (
@@ -66,7 +68,7 @@ var googleConfig = &oauth2.Config{
 	//憑證的 client_secret
 	ClientSecret: "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",
 	//當 Google auth server 驗證過後，接收從 Google auth server 傳來的資訊
-	RedirectURL: "http://localhost:3000/auth",
+	RedirectURL: GoogleRedirectURL,
 	//告知 Google auth server 授權範圍，在這邊是取得用戶基本資訊和Email，Scopes 為 Google 提供
 	Scopes: []string{
 		"https://www.googleapis.com/auth/userinfo.email",
@@ -85,38 +87,42 @@ func NewGoogleOauth2() *GoogleOauth2 {
 
 func GoogleOAuthURL() string {
 
-	return googleConfig.AuthCodeURL("state")
+	return googleConfig.AuthCodeURL(UUID)
 }
 
 //Exchange
 func (g *GoogleOauth2) Exchange(ctx context.Context, code string, opts ...oauth2.AuthCodeOption) error {
 
-	token, err := Exchange(g.Config, ctx, code, opts...)
-	if err != nil {
-		return err
-	}
-	g.Token = token
-	return nil
+	opts = append(opts, oauth2.AccessTypeOffline)
+	return Exchange(g.Config, ctx, code, g.Token, opts...)
 }
 
 //Client
-func (g *GoogleOauth2) Client(ctx context.Context) error {
+func (g *GoogleOauth2) Request(ctx context.Context) error {
+
 	client := g.Config.Client(ctx, g.Token)
 	res, getErr := client.Get(GoogleUserInfoURL)
 	if getErr != nil {
-		fmt.Println("google client getErr:", getErr)
-		return
+
+		return fmt.Errorf("client request error: %w", getErr)
 	}
+
 	defer res.Body.Close()
 
 	if res.StatusCode != 200 {
+
+		return errors.New(fmt.Sprintf("request http status code: %d", res.StatusCode))
 	}
 
-	rawData, _ := ioutil.ReadAll(res.Body)
-	return json.Unmarshal(rawData, &g.Response)
+	rawData, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return fmt.Errorf("io reader error: %w", err)
+	}
+
+	return jsoniter.Unmarshal(rawData, &g.Response)
 }
 
-func GoogleClient(ctx context.Context, token *oauth2.Token) {
+/* func GoogleClient(ctx context.Context, token *oauth2.Token) {
 	client := googleConfig.Client(ctx, token)
 	res, getErr := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
 	if getErr != nil {
@@ -128,3 +134,4 @@ func GoogleClient(ctx context.Context, token *oauth2.Token) {
 	rawData, _ := ioutil.ReadAll(res.Body)
 	fmt.Println("rawData:", string(rawData))
 }
+*/

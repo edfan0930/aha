@@ -22,6 +22,7 @@ func GenerSessionID() string {
 	b := make([]byte, 32)
 	_, err := rand.Read(b)
 	if err != nil {
+		fmt.Println("gener session ID failed:", err)
 		return ""
 	}
 

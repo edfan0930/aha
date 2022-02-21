@@ -1,9 +1,10 @@
 package router
 
 import (
-	"context"
 	"fmt"
 	"net/http"
+
+	"github.com/edfan0930/aha/domain/callback"
 
 	"github.com/gorilla/sessions"
 
@@ -21,19 +22,25 @@ func InitRouter() {
 	r := gin.Default()
 	r.Use(requestid.New())
 
-	u := r.Group("/user", func(c *gin.Context) {
+	u := r.Group("/user")
+	u.GET("/google", func(c *gin.Context) {
 
+		redirectURL := oauth.GoogleOAuthURL()
+		c.Redirect(http.StatusSeeOther, redirectURL)
 	})
 
-	//	u.POST("/signup", user.Signup)
-	r.GET("/callback", func(c *gin.Context) {
-		s := c.Query("state")
-		fmt.Println("state:", s)
-		//		code:=c.Query("code")
-		c.JSON(http.StatusOK, "isOk")
-	})
+	c := r.Group("/callback")
+	c.GET("google", callback.Google)
+	/*
+		//	u.POST("/signup", user.Signup)
+		r.GET("/callback", func(c *gin.Context) {
+			s := c.Query("state")
+			fmt.Println("state:", s)
+			//		code:=c.Query("code")
+			c.JSON(http.StatusOK, "isOk")
+		}) */
 
-	r.GET("/auth", func(c *gin.Context) {
+	/* r.GET("/auth", func(c *gin.Context) {
 		if code := c.Query("code"); code != "" {
 			fmt.Println("get code")
 			token, err := oauth.GoogleExchange(context.Background(), code)
@@ -50,31 +57,25 @@ func InitRouter() {
 		}
 
 	})
-
-	r.GET("/google", func(c *gin.Context) {
-
-		redirectURL := oauth.GoogleOAuthURL()
-		c.Redirect(http.StatusSeeOther, redirectURL)
-	})
-
+	*/
 	r.GET("/facebook", func(c *gin.Context) {
 		redirectURL := oauth.FackbookOAuthURL()
 		c.Redirect(http.StatusSeeOther, redirectURL)
 	})
-
-	r.GET("/facebook/callback", func(c *gin.Context) {
-		code := c.Query("code")
-		token, err := oauth.FacebookExchange(context.Background(), code)
-		if err != nil {
-			c.JSON(http.StatusOK, err.Error())
-			return
-		}
-		if token.AccessToken != "" {
-			oauth.GoogleClient(context.Background(), token)
-		}
-		fmt.Println("AccessToken empty")
-		c.JSON(http.StatusOK, token)
-	})
+	/*
+		r.GET("/facebook/callback", func(c *gin.Context) {
+			code := c.Query("code")
+			token, err := oauth.FacebookExchange(context.Background(), code)
+			if err != nil {
+				c.JSON(http.StatusOK, err.Error())
+				return
+			}
+			if token.AccessToken != "" {
+				oauth.GoogleClient(context.Background(), token)
+			}
+			fmt.Println("AccessToken empty")
+			c.JSON(http.StatusOK, token)
+		}) */
 
 	r.GET("/main", func(c *gin.Context) {
 
@@ -132,7 +133,7 @@ func InitRouter() {
 		fmt.Println("signup")
 	})
 
-	signup.GET("/google",func(c *gin.Context){})
+	signup.GET("/google", func(c *gin.Context) {})
 
 	r.Run(":3000")
 }
