@@ -61,7 +61,7 @@ type (
 )
 
 var googleConfig = &oauth2.Config{
-	//憑證的 client_id
+	//憑證的 client_id t
 	ClientID: "479205503773-r674qa8u7b186hbupe43oimrrc9mrhga.apps.googleusercontent.com",
 	//憑證的 client_secret
 	ClientSecret: "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",
