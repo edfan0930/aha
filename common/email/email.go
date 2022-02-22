@@ -15,7 +15,7 @@ func VerificationEmail(address []string) {
 	//e.Cc = []string{"test_cc@example.com"}
 	e.Subject = "Please verify your email address"
 	e.Text = []byte("Text Body is, of course, supported!")
-	e.HTML = []byte("<h1>Fancy HTML is supported, too!</h1>")
+	e.HTML = []byte(`<a href="localhost:3000/user/signup/verify">這個連結</a>`)
 	//needs to confirm your email address is valid. Please click the link below to confirm you received this mail.
 	err := e.Send("smtp.gmail.com:587", smtp.PlainAuth("", "ed0176@cchntek.com", "tllujunjrqezmtbo", "smtp.gmail.com"))
 	if err != nil {

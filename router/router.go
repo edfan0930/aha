@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/edfan0930/aha/domain/user"
+
 	"github.com/edfan0930/aha/domain/callback"
 
 	"github.com/gorilla/sessions"
@@ -34,6 +36,8 @@ func InitRouter() {
 		c.Redirect(http.StatusSeeOther, redirectURL)
 
 	})
+
+	u.PUT("/password", func(c *gin.Context) {})
 
 	c := r.Group("/callback")
 	c.GET("google", callback.Google)
@@ -136,10 +140,8 @@ func InitRouter() {
 	})
 
 	signup := u.Group("/signup")
-	signup.GET("", func(c *gin.Context) {
-		fmt.Println("signup")
-	})
-
+	signup.POST("", user.Signup)
+	signup.GET("/verification", user.Verification)
 	signup.GET("/google", func(c *gin.Context) {})
 
 	r.Run(":3000")
