@@ -29,8 +29,15 @@ func InitRouter() {
 		c.Redirect(http.StatusSeeOther, redirectURL)
 	})
 
+	u.GET("/facebook", func(c *gin.Context) {
+		redirectURL := oauth.FackbookOAuthURL()
+		c.Redirect(http.StatusSeeOther, redirectURL)
+
+	})
+
 	c := r.Group("/callback")
 	c.GET("google", callback.Google)
+	c.GET("facebook", callback.Facebook)
 	/*
 		//	u.POST("/signup", user.Signup)
 		r.GET("/callback", func(c *gin.Context) {

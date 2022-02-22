@@ -16,11 +16,9 @@ func init() {
 }
 
 //Exchange
-func Exchange(config *oauth2.Config, ctx context.Context, code string, token *oauth2.Token, opts ...oauth2.AuthCodeOption) error {
+func Exchange(config *oauth2.Config, ctx context.Context, code string, opts ...oauth2.AuthCodeOption) (*oauth2.Token, error) {
 
-	token, err := config.Exchange(ctx, code, opts...)
-	fmt.Println("is exchange err", err)
-	return err
+	return config.Exchange(ctx, code, opts...)
 }
 
 //AuthURL

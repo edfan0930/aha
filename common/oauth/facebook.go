@@ -2,7 +2,6 @@ package oauth
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/url"
@@ -13,13 +12,15 @@ import (
 
 const (
 	FBInfoURL           = "https://graph.facebook.com/me?access_token="
-	FacebookRedirectURL = "http://localhost:3000/callbace/facebook"
+	FacebookRedirectURL = "http://localhost:3000/callback/facebook"
 )
 
 type (
 	FacebookOauth2 struct {
-		Config *oauth2.Config
-		Token  *oauth2.Token
+		Config   *oauth2.Config
+		Token    *oauth2.Token
+		Response struct {
+		}
 	}
 )
 
@@ -39,13 +40,23 @@ var facebookConfig = &oauth2.Config{
 	Endpoint: facebook.Endpoint,
 }
 
+//NewFacebookOauth2
+func NewFacebookOauth2() *FacebookOauth2 {
+	return &FacebookOauth2{
+		Config: facebookConfig,
+	}
+}
+
 func FackbookOAuthURL() string {
 	return facebookConfig.AuthCodeURL(UUID)
 }
 
 func (f *FacebookOauth2) Exchange(ctx context.Context, code string, opts ...oauth2.AuthCodeOption) error {
 
-	return Exchange(f.Config, ctx, code, f.Token, opts...)
+	var err error
+	f.Token, err = Exchange(f.Config, ctx, code, opts...)
+	fmt.Println("facebook exchange", err)
+	return err
 }
 
 func (f *FacebookOauth2) Request(ctx context.Context) error {
@@ -61,7 +72,7 @@ func (f *FacebookOauth2) Request(ctx context.Context) error {
 
 	if res.StatusCode != 200 {
 
-		return errors.New(fmt.Sprintf("request http status code: %d", res.StatusCode))
+		return fmt.Errorf(fmt.Sprintf("request http status code: %d", res.StatusCode))
 	}
 
 	rawData, err := ioutil.ReadAll(res.Body)

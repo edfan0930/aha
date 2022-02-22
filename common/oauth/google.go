@@ -2,7 +2,6 @@ package oauth
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"time"
@@ -93,8 +92,10 @@ func GoogleOAuthURL() string {
 //Exchange
 func (g *GoogleOauth2) Exchange(ctx context.Context, code string, opts ...oauth2.AuthCodeOption) error {
 
-	opts = append(opts, oauth2.AccessTypeOffline)
-	return Exchange(g.Config, ctx, code, g.Token, opts...)
+	var err error
+	//	opts = append(opts, oauth2.AccessTypeOffline)
+	g.Token, err = Exchange(g.Config, ctx, code, opts...)
+	return err
 }
 
 //Client
@@ -111,7 +112,7 @@ func (g *GoogleOauth2) Request(ctx context.Context) error {
 
 	if res.StatusCode != 200 {
 
-		return errors.New(fmt.Sprintf("request http status code: %d", res.StatusCode))
+		return fmt.Errorf(fmt.Sprintf("request http status code: %d", res.StatusCode))
 	}
 
 	rawData, err := ioutil.ReadAll(res.Body)
