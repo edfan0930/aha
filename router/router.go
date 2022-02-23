@@ -22,7 +22,15 @@ import (
 func InitRouter() {
 
 	r := gin.Default()
+	r.LoadHTMLGlob("view/*")
+	r.GET("/index", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "signup.html", gin.H{
+			"title": "test",
+		})
+	})
 	r.Use(requestid.New())
+
+	Dashboard(r)
 
 	u := r.Group("/user")
 	u.GET("/google", func(c *gin.Context) {
@@ -37,7 +45,7 @@ func InitRouter() {
 
 	})
 
-	u.PUT("/password", func(c *gin.Context) {})
+	u.PUT("/password", user.ResetPassword)
 
 	c := r.Group("/callback")
 	c.GET("google", callback.Google)
@@ -112,7 +120,7 @@ func InitRouter() {
 	})
 
 	r.GET("/session/get", func(c *gin.Context) {
-		store, err := storage.Store.Get(c.Request, "user")
+		store, err := storage.Store.Session.Get(c.Request, "user")
 		if err != nil {
 			fmt.Println("err", err)
 		}
@@ -120,13 +128,13 @@ func InitRouter() {
 	})
 
 	r.GET("/session/new", func(c *gin.Context) {
-		storage.Store = sessions.NewCookieStore([]byte(storage.GenerSessionID()))
+		storage.Store.Session = sessions.NewCookieStore([]byte(storage.GenerSessionID()))
 		c.JSON(http.StatusOK, "hello world")
 	})
 
 	r.GET("/session/set", func(c *gin.Context) {
 		//		c.Cookie
-		store, _ := storage.Store.Get(c.Request, "user")
+		store, _ := storage.Store.Session.Get(c.Request, "user")
 		store.Values["age"] = 18
 		err := store.Save(c.Request, c.Writer)
 		if err != nil {

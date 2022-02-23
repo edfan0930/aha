@@ -1,13 +1,12 @@
 package user
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
-	"regexp"
 	"unicode"
 
 	"github.com/edfan0930/aha/common/email"
+	"github.com/edfan0930/aha/domain/response"
 
 	"github.com/edfan0930/aha/utils"
 
@@ -16,37 +15,31 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const (
-//PasswordRegex = `^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$`
-// PasswordRegex = `^?=.*[a-z][a-zA-Z\d]{8,}$`
-)
-
-var PasswordRegex = regexp.MustCompile(`^{8,}$`)
-
-//validate:"password,eqfield=ConfirmPasswords"
 type (
 	SignupConfirm struct {
-		SigninRequest
+		LoginRequest
 		ConfirmPassword string `json:"confirm_password" binding:"required,eqfield=Password"`
 	}
 )
 
+//Signup
 func Signup(c *gin.Context) {
 
 	r := NewSignupConfirm()
-	if err := c.ShouldBindJSON(r); err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+	if err := c.BindJSON(r); err != nil {
+		c.JSON(http.StatusBadRequest, response.Error(err.Error()))
 		return
 	}
 
 	//VerifyPassword
 	if err := VerifyPassword(r.Password); err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, response.Error(err.Error()))
 		return
 	}
+
 	token := utils.GenerUUID()
 	if token == "" {
-		c.JSON(http.StatusInternalServerError, errors.New(""))
+		c.JSON(http.StatusInternalServerError, response.Error("gener uuid error"))
 	}
 
 	user := db.NewUser(r.Email).Signup(r.Password, token)
@@ -55,7 +48,7 @@ func Signup(c *gin.Context) {
 		return
 	}
 
-	email.VerificationEmail([]string{})
+	email.VerificationEmail([]string{r.Email})
 
 	c.JSON(http.StatusOK, r)
 }
@@ -63,7 +56,7 @@ func Signup(c *gin.Context) {
 //NewSignupConfirm
 func NewSignupConfirm() *SignupConfirm {
 	return &SignupConfirm{
-		SigninRequest: SigninRequest{},
+		LoginRequest: LoginRequest{},
 	}
 }
 

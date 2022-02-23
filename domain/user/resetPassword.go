@@ -1,7 +1,11 @@
 package user
 
 import (
+	"errors"
 	"net/http"
+
+	"github.com/edfan0930/aha/common/storage"
+	"github.com/edfan0930/aha/db"
 
 	"github.com/edfan0930/aha/domain/response"
 	"github.com/gin-gonic/gin"
@@ -27,5 +31,23 @@ func ResetPassword(c *gin.Context) {
 		return
 	}
 
-	if err:= db.NewUser()
+	session, err := storage.UserHandler(c.Writer, c.Request)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
+		return
+	}
+	email, err := storage.GetEmail(session)
+	if err != nil || email == "" {
+		if email == "" {
+			err = errors.New("data not found")
+		}
+		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
+		return
+	}
+
+	if err := db.NewUser(email).UpdatePassword(db.MainSession, c, r.New); err != nil {
+
+		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
+		return
+	}
 }

@@ -11,6 +11,10 @@ import (
 	"github.com/gorilla/sessions"
 )
 
+const (
+	MaxAge = 86400 * 30
+)
+
 type (
 	store struct {
 		mux     sync.RWMutex
@@ -59,8 +63,18 @@ func GetEmail(s *sessions.Session) (string, error) {
 	return email, nil
 }
 
-func Login(s *sessions.Session) {
+//Login
+func Login(s *sessions.Session, email string) *sessions.Session {
+
 	s.Values[StorageKey.Logged] = true
+	s.Values[StorageKey.Email] = email
+	return ResetMaxAge(s)
+}
+
+//Save
+func Save(s *sessions.Session, w http.ResponseWriter, r *http.Request) error {
+
+	return s.Save(r, w)
 }
 
 //LoggedOn get logged bool
@@ -84,4 +98,10 @@ func UserHandler(w http.ResponseWriter, r *http.Request) (*sessions.Session, err
 //SetDelete
 func SetDelete(s *sessions.Session) {
 	s.Options.MaxAge = -1
+}
+
+//ResetMaxAge
+func ResetMaxAge(s *sessions.Session) *sessions.Session {
+	s.Options.MaxAge = MaxAge
+	return s
 }
