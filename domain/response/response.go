@@ -2,29 +2,29 @@ package response
 
 type (
 	Response struct {
-		Data  interface{} `json:"data"`
-		Error string      `json:"error"`
+		Data    interface{} `json:"data"`
+		Message string      `json:"message"`
 	}
 )
 
 //Success
 func Success() *Response {
 	return &Response{
-		Error: "nil",
+		Message: "success",
 	}
 }
 
 //HasData
 func HasData(data interface{}) *Response {
 	return &Response{
-		Data:  data,
-		Error: "nil",
+		Data:    data,
+		Message: "success",
 	}
 }
 
 //Error
 func Error(message string) *Response {
 	return &Response{
-		Error: message,
+		Message: message,
 	}
 }

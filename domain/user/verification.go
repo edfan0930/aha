@@ -3,6 +3,8 @@ package user
 import (
 	"net/http"
 
+	"github.com/edfan0930/aha/domain/response"
+
 	"github.com/edfan0930/aha/db"
 
 	"github.com/gin-gonic/gin"
@@ -15,6 +17,7 @@ type (
 	}
 )
 
+//Verification verification email
 func Verification(c *gin.Context) {
 	r := new(verification)
 	if err := c.BindQuery(r); err != nil {
@@ -27,4 +30,6 @@ func Verification(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
+
+	c.JSON(http.StatusOK, response.Success())
 }

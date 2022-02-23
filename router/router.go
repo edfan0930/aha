@@ -142,7 +142,8 @@ func InitRouter() {
 	signup := u.Group("/signup")
 	signup.POST("", user.Signup)
 	signup.GET("/verification", user.Verification)
-	signup.GET("/google", func(c *gin.Context) {})
 
+	signup.GET("/google", func(c *gin.Context) {})
+	signup.GET("facebook", func(c *gin.Context) {})
 	r.Run(":3000")
 }

@@ -6,15 +6,34 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"sync"
 
 	"github.com/gorilla/sessions"
 )
 
-var Store *sessions.CookieStore
+type (
+	store struct {
+		mux     sync.RWMutex
+		Session *sessions.CookieStore
+		Key     []byte
+	}
+)
+
+var Store *store
 
 func init() {
 
-	Store = sessions.NewCookieStore([]byte(GenerSessionID()))
+	NewCookieStore()
+}
+
+//NewCookieStore
+func NewCookieStore() {
+
+	key := []byte(GenerSessionID())
+	Store = &store{
+		Session: sessions.NewCookieStore(key),
+		Key:     key,
+	}
 }
 
 //GenerSessionID
@@ -29,9 +48,15 @@ func GenerSessionID() string {
 	return base64.URLEncoding.EncodeToString(b)
 }
 
-func Get() {
+func GetEmail(s *sessions.Session) (string, error) {
 
-	fmt.Println("store", Store)
+	l := s.Values[StorageKey.Email]
+	email, ok := l.(string)
+	if !ok {
+		return "", errors.New("assert type error")
+	}
+
+	return email, nil
 }
 
 func Login(s *sessions.Session) {
@@ -50,8 +75,10 @@ func LoggedOn(s *sessions.Session) (bool, error) {
 	return logged, nil
 }
 
-func Handler(w http.ResponseWriter, r *http.Request, key string) {
-	Store.Get(r, key)
+//UserHandler
+func UserHandler(w http.ResponseWriter, r *http.Request) (*sessions.Session, error) {
+
+	return Store.Session.Get(r, "user")
 }
 
 //SetDelete

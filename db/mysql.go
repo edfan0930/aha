@@ -13,7 +13,7 @@ var MainSession *MySQL
 
 func init() {
 	var err error
-	MainSession, err = NewMySQL("root", "1234", "127.0.0.1", "aha")
+	MainSession, err = NewMySQL("root", "", "127.0.0.1", "aha")
 	if err != nil {
 		panic("sql init: " + err.Error())
 	}
