@@ -1,16 +1,9 @@
 package router
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/edfan0930/aha/domain/user"
-
-	"github.com/edfan0930/aha/domain/callback"
-
-	"github.com/gorilla/sessions"
-
-	"github.com/edfan0930/aha/common/email"
 
 	"github.com/edfan0930/aha/common/oauth"
 	"github.com/edfan0930/aha/common/storage"
@@ -23,6 +16,7 @@ func InitRouter() {
 
 	r := gin.Default()
 	r.LoadHTMLGlob("view/*")
+
 	r.GET("/index", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "signup.html", gin.H{
 			"title": "test",
@@ -30,26 +24,37 @@ func InitRouter() {
 	})
 	r.Use(requestid.New())
 
+	//Dashboard methods
 	Dashboard(r)
 
+	//Callback methods
+	Callback(r)
+
+	//
+	r.GET("/", func(c *gin.Context) {
+		session, err := storage.UserHandler(c.Request)
+		if err != nil {
+
+			c.Redirect(http.StatusSeeOther, "/signup")
+			return
+		}
+
+		l := session.Values[storage.StorageKey.Email]
+		email, _ := l.(string)
+		if email == "" {
+			c.Redirect(http.StatusSeeOther, "/login")
+			return
+		}
+
+		c.Redirect(http.StatusSeeOther, "/dashboard")
+	})
+
 	u := r.Group("/user")
-	u.GET("/google", func(c *gin.Context) {
 
-		redirectURL := oauth.GoogleOAuthURL()
-		c.Redirect(http.StatusSeeOther, redirectURL)
-	})
+	u.POST("/login", user.Login) //user defined login
 
-	u.GET("/facebook", func(c *gin.Context) {
-		redirectURL := oauth.FackbookOAuthURL()
-		c.Redirect(http.StatusSeeOther, redirectURL)
+	u.PUT("/password", user.ResetPassword) //reset password
 
-	})
-
-	u.PUT("/password", user.ResetPassword)
-
-	c := r.Group("/callback")
-	c.GET("google", callback.Google)
-	c.GET("facebook", callback.Facebook)
 	/*
 		//	u.POST("/signup", user.Signup)
 		r.GET("/callback", func(c *gin.Context) {
@@ -77,10 +82,7 @@ func InitRouter() {
 
 	})
 	*/
-	r.GET("/facebook", func(c *gin.Context) {
-		redirectURL := oauth.FackbookOAuthURL()
-		c.Redirect(http.StatusSeeOther, redirectURL)
-	})
+
 	/*
 		r.GET("/facebook/callback", func(c *gin.Context) {
 			code := c.Query("code")
@@ -98,11 +100,7 @@ func InitRouter() {
 
 	r.GET("/main", func(c *gin.Context) {
 
-		fmt.Println("path", c.Request.URL)
-		c.Request.URL.Path = "/session/new"
-		r.HandleContext(c)
-		return
-		c.Redirect(http.StatusSeeOther, "http://localhost:3000/session/new")
+		c.Redirect(http.StatusSeeOther, "/")
 		/* 		code := c.Query("code")
 		   		token, err := oauth.FacebookExchange(context.Background(), code)
 		   		if err != nil {
@@ -119,39 +117,34 @@ func InitRouter() {
 		//		c.JSON(http.StatusOK, c.Query("code"))
 	})
 
-	r.GET("/session/get", func(c *gin.Context) {
-		store, err := storage.Store.Session.Get(c.Request, "user")
-		if err != nil {
-			fmt.Println("err", err)
-		}
-		fmt.Printf("store:%s", store)
-	})
+	signup := r.Group("/signup")
 
-	r.GET("/session/new", func(c *gin.Context) {
-		storage.Store.Session = sessions.NewCookieStore([]byte(storage.GenerSessionID()))
-		c.JSON(http.StatusOK, "hello world")
-	})
+	signup.GET("", func(c *gin.Context) {
 
-	r.GET("/session/set", func(c *gin.Context) {
-		//		c.Cookie
-		store, _ := storage.Store.Session.Get(c.Request, "user")
-		store.Values["age"] = 18
-		err := store.Save(c.Request, c.Writer)
-		if err != nil {
-			return
-		}
-		fmt.Println("hello world")
+		c.HTML(http.StatusOK, "signup.html", gin.H{})
 	})
-
-	r.GET("/email", func(c *gin.Context) {
-		email.VerificationEmail([]string{""})
-	})
-
-	signup := u.Group("/signup")
 	signup.POST("", user.Signup)
+
 	signup.GET("/verification", user.Verification)
 
-	signup.GET("/google", func(c *gin.Context) {})
-	signup.GET("facebook", func(c *gin.Context) {})
+	login := r.Group("/login")
+
+	login.GET("", func(c *gin.Context) {
+
+		c.HTML(http.StatusOK, "login.html", gin.H{})
+	})
+
+	login.GET("/google", func(c *gin.Context) {
+
+		redirectURL := oauth.GoogleOAuthURL()
+		c.Redirect(http.StatusSeeOther, redirectURL)
+	})
+
+	login.GET("/facebook", func(c *gin.Context) {
+		redirectURL := oauth.FackbookOAuthURL()
+		c.Redirect(http.StatusSeeOther, redirectURL)
+
+	})
+
 	r.Run(":3000")
 }

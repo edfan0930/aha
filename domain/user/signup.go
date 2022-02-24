@@ -18,7 +18,7 @@ import (
 type (
 	SignupConfirm struct {
 		LoginRequest
-		ConfirmPassword string `json:"confirm_password" binding:"required,eqfield=Password"`
+		ConfirmPassword string `json:"confirm_password" form:"confirm_password" binding:"required,eqfield=Password"`
 	}
 )
 

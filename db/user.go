@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"time"
+
+	"github.com/edfan0930/aha/utils"
 )
 
 const (
@@ -18,10 +20,6 @@ const (
 	UpdatedAt       = "updated_at"
 	SessionAt       = "session_at"
 	CreatedAt       = "created_at"
-)
-
-const (
-	SessionAtFormat = "2006-01-02"
 )
 
 type (
@@ -50,10 +48,20 @@ func NewUser(email string) *User {
 	}
 }
 
+//First
 func First(session *MySQL, context context.Context, email string) (*User, error) {
 	u := &User{}
 	tx := session.Gorm.First(u, email)
 	return u, tx.Error
+}
+
+//WhereFirst
+func WhereFirst(session *MySQL, context context.Context, u User) (*User, error) {
+
+	user := &User{}
+	tx := session.Gorm.Where(&u).First(user)
+
+	return user, tx.Error
 }
 
 //Signup user defined
@@ -61,7 +69,7 @@ func (u *User) Signup(password, verifyToken string) *User {
 
 	u.Password = password
 	u.VerifyToken = verifyToken
-	u.SessionAt, _ = time.Parse(SessionAtFormat, time.Now().Format(SessionAtFormat))
+	u.SessionAt = utils.GetDateNow()
 	return u
 }
 
@@ -99,11 +107,11 @@ func (u *User) UpdateVerified(session *MySQL, context context.Context, token str
 	return tx.Error
 }
 
-//UpdateLastSession
-func (u *User) UpdateLastSession(session *MySQL, context context.Context) error {
+//UpdateLastSession update
+func (u *User) UpdateSessionAt(session *MySQL, context context.Context) error {
 
 	tx := session.Gorm.Begin()
-	t := tx.Model(u).Update(Verified, time.Now().Format(SessionAtFormat))
+	t := tx.Model(u).Update(SessionAt, utils.GetDateNow())
 	if t.RowsAffected == 0 {
 		_, err := First(session, context, u.Email)
 		if err != nil {
@@ -137,4 +145,10 @@ func (u *User) UpdatePassword(session *MySQL, context context.Context, password 
 
 	tx.Commit()
 	return t.Error
+}
+
+func (u *User) Save(session *MySQL, context context.Context) error {
+
+	tx := session.Gorm.Save(u)
+	return tx.Error
 }

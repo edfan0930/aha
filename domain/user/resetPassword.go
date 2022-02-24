@@ -31,12 +31,7 @@ func ResetPassword(c *gin.Context) {
 		return
 	}
 
-	session, err := storage.UserHandler(c.Writer, c.Request)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
-		return
-	}
-	email, err := storage.GetEmail(session)
+	email, err := storage.GetEmail(c.Request)
 	if err != nil || email == "" {
 		if email == "" {
 			err = errors.New("data not found")
@@ -45,6 +40,7 @@ func ResetPassword(c *gin.Context) {
 		return
 	}
 
+	//
 	if err := db.NewUser(email).UpdatePassword(db.MainSession, c, r.New); err != nil {
 
 		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
