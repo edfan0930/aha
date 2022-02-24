@@ -24,6 +24,7 @@ func InitRouter() {
 	})
 	r.Use(requestid.New())
 
+
 	//Dashboard methods
 	Dashboard(r)
 

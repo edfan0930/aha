@@ -1,7 +1,6 @@
 package user
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/edfan0930/aha/common/storage"
@@ -21,24 +20,20 @@ type resetPassword struct {
 func ResetPassword(c *gin.Context) {
 
 	r := &resetPassword{}
-	if err := c.BindJSON(r); err != nil {
+	if err := c.Bind(r); err != nil {
+
 		c.JSON(http.StatusBadRequest, response.Error(err.Error()))
 		return
 	}
 
+	//
 	if err := VerifyPassword(r.New); err != nil {
+
 		c.JSON(http.StatusBadRequest, response.Error(err.Error()))
 		return
 	}
 
-	email, err := storage.GetEmail(c.Request)
-	if err != nil || email == "" {
-		if email == "" {
-			err = errors.New("data not found")
-		}
-		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
-		return
-	}
+	email := c.Request.Header.Get(storage.StorageKey.Email)
 
 	//
 	if err := db.NewUser(email).UpdatePassword(db.MainSession, c, r.New); err != nil {
