@@ -18,12 +18,14 @@ func InitRouter() {
 	r.LoadHTMLGlob("view/*")
 
 	r.GET("/index", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "signup.html", gin.H{
-			"title": "test",
+
+		text := []string{"a", "b", "c", "d"}
+		c.HTML(http.StatusOK, "dashboard.html", gin.H{
+			"list": text,
 		})
 	})
-	r.Use(requestid.New())
 
+	r.Use(requestid.New())
 
 	//Dashboard methods
 	Dashboard(r)
@@ -33,6 +35,7 @@ func InitRouter() {
 
 	//
 	r.GET("/", func(c *gin.Context) {
+
 		session, err := storage.UserHandler(c.Request)
 		if err != nil {
 
@@ -142,9 +145,9 @@ func InitRouter() {
 	})
 
 	login.GET("/facebook", func(c *gin.Context) {
+
 		redirectURL := oauth.FackbookOAuthURL()
 		c.Redirect(http.StatusSeeOther, redirectURL)
-
 	})
 
 	r.Run(":3000")

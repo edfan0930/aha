@@ -1,74 +1,52 @@
 package storage
 
 import (
-	"errors"
 	"net/http"
-
-	"github.com/gorilla/sessions"
 )
 
 //OauthSignup
-func OauthLogin(w http.ResponseWriter, r *http.Request, email string) error {
+func (s *Session) OauthLogin(w http.ResponseWriter, r *http.Request, email, name string) error {
 
-	s, _ := UserHandler(r)
-
-	s.Values[StorageKey.Email] = email
-	s.Values[StorageKey.Logged] = true
-
-	return s.Save(r, w)
+	s.SetValue(StorageKey.Email, email)
+	s.SetValue(StorageKey.Logged, "true")
+	s.SetValue(StorageKey.Name, name)
+	s.ResetMaxAge()
+	return s.Save(w, r)
 }
 
 //GetEmail
-func GetEmail(r *http.Request) (string, error) {
+func (s *Session) GetEmail(r *http.Request) string {
 
-	s, err := UserHandler(r)
-	if err != nil {
-		return "", err
-	}
-
-	l := s.Values[StorageKey.Email]
-	email, ok := l.(string)
-	if !ok {
-		return "", errors.New("assert type error")
-	}
-
-	return email, nil
+	return s.GetValue(StorageKey.Email)
 }
 
 //GetLoggedOn
-func GetLoggedOn(r *http.Request) (bool, error) {
+func (s *Session) GetLoggedOn(r *http.Request) string {
 
-	s, err := UserHandler(r)
-	if err != nil {
-		return false, err
-	}
+	return s.GetValue(StorageKey.Logged)
+}
 
-	l := s.Values[StorageKey.Logged]
-	logged, ok := l.(bool)
-	if !ok {
-		return false, errors.New("assert type error")
-	}
+//GetName
+func (s *Session) GetName(r *http.Request) string {
 
-	return logged, nil
-
+	return s.GetValue(StorageKey.Name)
 }
 
 //Login
-func Login(s *sessions.Session, email string) *sessions.Session {
+func (s *Session) Login(w http.ResponseWriter, r *http.Request, email, name string) error {
 
-	s.Values[StorageKey.Logged] = true
-	s.Values[StorageKey.Email] = email
-	return ResetMaxAge(s)
+	s.SetValue(StorageKey.Email, email)
+	s.SetValue(StorageKey.Logged, "true")
+	s.SetValue(StorageKey.Name, name)
+	s.ResetMaxAge()
+
+	return s.Save(w, r)
 }
 
-//LoggedOn get logged bool
-func LoggedOn(s *sessions.Session) (bool, error) {
-	l := s.Values[StorageKey.Logged]
+//Logout
+func (s *Session) Logout(w http.ResponseWriter, r *http.Request) error {
 
-	logged, ok := l.(bool)
-	if !ok {
-		return false, errors.New("assert type error")
-	}
+	s.SetDelete()
 
-	return logged, nil
+	return s.Save(w, r)
 }

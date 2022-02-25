@@ -35,28 +35,26 @@ func example() gin.HandlerFunc {
 func VerfySession() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		email, err := storage.GetEmail(c.Request)
+		s, err := storage.UserHandler(c.Request)
 		if err != nil {
 
 			c.JSON(http.StatusUnauthorized, response.Error(err.Error()))
 			return
 		}
 
-		logged, err := storage.GetLoggedOn(c.Request)
-		if err != nil {
+		session := storage.NewSession(s)
+		email := session.GetEmail(c.Request)
+		logged := session.GetLoggedOn(c.Request)
+		name := session.GetName(c.Request)
 
-			c.JSON(http.StatusUnauthorized, response.Error(err.Error()))
-			return
-		}
 		c.Request.Header.Add("email", email)
+		c.Request.Header.Add("name", name)
 
-		if logged {
-			c.Request.Header.Add("logged", "true")
+		if logged == "" {
+			logged = "false"
 		}
 
-		if !logged {
-			c.Request.Header.Add("logged", "false")
-		}
+		c.Request.Header.Add("logged", logged)
 
 		c.Next()
 	}

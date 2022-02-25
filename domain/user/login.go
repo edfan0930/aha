@@ -42,18 +42,12 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	session, _ := storage.UserHandler(c.Request)
-	/* 	if err != nil {
-		fmt.Println("user handler", err)
-		c.JSON(http.StatusBadRequest, response.Error(err.Error()))
-		return
-	} */
-
-	if err := storage.Save(storage.Login(session, user.Email), c.Writer, c.Request); err != nil {
+	session := storage.NewSession(storage.PassSecure(c.Request))
+	if err := session.Login(c.Writer, c.Request, user.Email, user.Name); err != nil {
 
 		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, response.Success())
+	c.Redirect(http.StatusSeeOther, "/profile")
 }

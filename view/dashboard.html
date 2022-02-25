@@ -2,6 +2,11 @@
     <h1>
         dashboard
     </h1>
+    {{ range .list}}
+    <h2>
+        {{ .}}
+    </h2>
+    {{ end }}
     <h2>
         <span><a href="/">User Profile</a></span> <span><a href="/"> User Database</a></span>
     </h2>

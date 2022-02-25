@@ -127,6 +127,26 @@ func (u *User) UpdateSessionAt(session *MySQL, context context.Context) error {
 	return t.Error
 }
 
+//UpdateName
+func (u *User) UpdateName(session *MySQL, context context.Context, name string) error {
+
+	tx := session.Gorm.Begin()
+	t := tx.Model(u).Update(Name, name)
+	if t.RowsAffected == 0 {
+		_, err := First(session, context, u.Email)
+		if err != nil {
+
+			t.AddError(err)
+		}
+
+		tx.Rollback()
+		return t.Error
+	}
+
+	tx.Commit()
+	return t.Error
+}
+
 //UpdatePassword
 func (u *User) UpdatePassword(session *MySQL, context context.Context, password string) error {
 

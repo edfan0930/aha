@@ -1,6 +1,7 @@
 package callback
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/edfan0930/aha/common/storage"
@@ -14,16 +15,33 @@ import (
 	"github.com/edfan0930/aha/common/oauth"
 
 	"github.com/gin-gonic/gin"
+	"github.com/markbates/goth/gothic"
 )
 
 //Google
 func Google(c *gin.Context) {
+	c.Request.Header.Set("provider", "Google")
+	user, err := gothic.CompleteUserAuth(c.Writer, c.Request)
+	if err != nil {
+
+		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
+		return
+	}
+	fmt.Println("user", user)
+
+	return
 
 	code := c.Query("code")
 	if code == "" {
 
 		c.JSON(http.StatusBadRequest, response.Error("bad request"))
 		return
+	}
+
+	state := c.Query("state")
+	if state != oauth.UUID {
+
+		c.JSON(http.StatusBadRequest, response.Error("bad request"))
 	}
 
 	g := oauth.NewGoogleOauth2()
@@ -51,7 +69,8 @@ func Google(c *gin.Context) {
 		return
 	}
 
-	if err := storage.OauthLogin(c.Writer, c.Request, g.Response.Email); err != nil {
+	s := storage.NewSession(storage.PassSecure(c.Request))
+	if err := s.Login(c.Writer, c.Request, u.Email, u.Name); err != nil {
 
 		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
 		return

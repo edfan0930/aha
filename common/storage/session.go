@@ -16,9 +16,14 @@ const (
 
 type (
 	store struct {
-		mux     sync.RWMutex
-		Session *sessions.CookieStore
-		Key     []byte
+		Mux         sync.RWMutex
+		CookieStore *sessions.CookieStore
+		Key         []byte
+	}
+
+	Session struct {
+		S *sessions.Session
+		*store
 	}
 )
 
@@ -26,16 +31,23 @@ var Store *store
 
 func init() {
 
-	NewCookieStore()
+	NewStore()
 }
 
 //NewCookieStore
-func NewCookieStore() {
+func NewStore() {
 
 	key := []byte(GenerSessionID())
 	Store = &store{
-		Session: sessions.NewCookieStore(key),
-		Key:     key,
+		CookieStore: sessions.NewCookieStore(key),
+		Key:         key,
+	}
+}
+
+func NewSession(s *sessions.Session) *Session {
+	return &Session{
+		S:     s,
+		store: Store,
 	}
 }
 
@@ -44,25 +56,46 @@ func GenerSessionID() string {
 	return utils.GenerUUID()
 }
 
-//Save
-func Save(s *sessions.Session, w http.ResponseWriter, r *http.Request) error {
-
-	return s.Save(r, w)
-}
-
 //UserHandler
 func UserHandler(r *http.Request) (*sessions.Session, error) {
 
-	return Store.Session.Get(r, UserStore)
+	return Store.CookieStore.Get(r, UserStore)
+}
+
+//PassSecure pass secure verification
+func PassSecure(r *http.Request) *sessions.Session {
+	s, _ := UserHandler(r)
+	return s
+}
+
+//Save
+func (s *Session) Save(w http.ResponseWriter, r *http.Request) error {
+
+	return s.S.Save(r, w)
 }
 
 //SetDelete
-func SetDelete(s *sessions.Session) {
-	s.Options.MaxAge = -1
+func (s *Session) SetDelete() *Session {
+	s.S.Options.MaxAge = -1
+	return s
 }
 
 //ResetMaxAge
-func ResetMaxAge(s *sessions.Session) *sessions.Session {
-	s.Options.MaxAge = MaxAge
+func (s *Session) ResetMaxAge() *Session {
+	s.S.Options.MaxAge = MaxAge
 	return s
+}
+
+func (s *Session) SetValue(key, value string) *Session {
+	s.S.Values[key] = value
+	return s
+}
+
+//GetValue
+func (s *Session) GetValue(key string) string {
+
+	v := s.S.Values[key]
+	value, _ := v.(string)
+
+	return value
 }

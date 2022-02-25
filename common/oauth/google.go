@@ -95,6 +95,7 @@ func (g *GoogleOauth2) Exchange(ctx context.Context, code string, opts ...oauth2
 	var err error
 	//	opts = append(opts, oauth2.AccessTypeOffline)
 	g.Token, err = Exchange(g.Config, ctx, code, opts...)
+	g.Token.Valid()
 	return err
 }
 
