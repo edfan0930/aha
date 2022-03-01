@@ -2,7 +2,10 @@ package user
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+
+	"github.com/markbates/goth/gothic"
 
 	"github.com/edfan0930/aha/common/storage"
 
@@ -49,5 +52,24 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(http.StatusSeeOther, "/profile")
+	c.Redirect(http.StatusSeeOther, "/dashboard/profile")
+}
+
+//OauthLogin
+func OauthLogin(c *gin.Context) {
+	fmt.Println("start")
+	if user, err := gothic.CompleteUserAuth(c.Writer, c.Request); err == nil {
+
+		session := storage.NewSession(storage.PassSecure(c.Request))
+		if err := session.Login(c.Writer, c.Request, user.Email, user.Name); err != nil {
+
+			c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
+			return
+		}
+
+		c.Redirect(http.StatusSeeOther, "/dashboard/profile")
+	}
+
+	fmt.Println("---------------------store", gothic.Store)
+	gothic.BeginAuthHandler(c.Writer, c.Request)
 }

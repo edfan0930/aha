@@ -34,7 +34,7 @@ func example() gin.HandlerFunc {
 //VerfySession
 func VerfySession() gin.HandlerFunc {
 	return func(c *gin.Context) {
-
+		
 		s, err := storage.UserHandler(c.Request)
 		if err != nil {
 
@@ -55,6 +55,21 @@ func VerfySession() gin.HandlerFunc {
 		}
 
 		c.Request.Header.Add("logged", logged)
+
+		c.Next()
+	}
+}
+
+//SetProvider
+func SetProvider() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		p := c.Param("provider")
+		if p != "" {
+			v := c.Request.URL.Query()
+			v.Set("provider", p)
+			c.Request.URL.RawQuery = v.Encode()
+		}
 
 		c.Next()
 	}

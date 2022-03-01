@@ -26,9 +26,9 @@ type (
 
 var facebookConfig = &oauth2.Config{
 	//憑證的 client_id
-	ClientID: "844823353051244",
+	ClientID: "633076937906328",
 	//憑證的 client_secret
-	ClientSecret: "83fd5fd6bf47f4f0808fc6109427519d",
+	ClientSecret: "b46722173e1ea17d407aea3263362380",
 	//當 Google auth server 驗證過後，接收從 Google auth server 傳來的資訊
 	RedirectURL: FacebookRedirectURL,
 	//告知 Google auth server 授權範圍，在這邊是取得用戶基本資訊和Email，Scopes 為 Google 提供

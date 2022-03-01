@@ -3,9 +3,10 @@ package router
 import (
 	"net/http"
 
+	"github.com/markbates/goth/gothic"
+
 	"github.com/edfan0930/aha/domain/user"
 
-	"github.com/edfan0930/aha/common/oauth"
 	"github.com/edfan0930/aha/common/storage"
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
@@ -26,6 +27,16 @@ func InitRouter() {
 	})
 
 	r.Use(requestid.New())
+
+	signup := r.Group("/signup")
+
+	signup.GET("", func(c *gin.Context) {
+
+		c.HTML(http.StatusOK, "signup.html", gin.H{})
+	})
+	signup.POST("", user.Signup)
+
+	signup.GET("/verification", user.Verification)
 
 	//Dashboard methods
 	Dashboard(r)
@@ -55,10 +66,16 @@ func InitRouter() {
 
 	u := r.Group("/user")
 
-	u.POST("/login", user.Login) //user defined login
+	//	u.POST("/login", user.Login) //user defined login
 
 	u.PUT("/password", user.ResetPassword) //reset password
+	logout := u.Group("/logout", SetProvider())
+	logout.GET("", user.Logout)
+	logout.GET(":provider", func(c *gin.Context) {
 
+		gothic.Logout(c.Writer, c.Request)
+		c.Redirect(http.StatusSeeOther, "/")
+	})
 	/*
 		//	u.POST("/signup", user.Signup)
 		r.GET("/callback", func(c *gin.Context) {
@@ -121,34 +138,23 @@ func InitRouter() {
 		//		c.JSON(http.StatusOK, c.Query("code"))
 	})
 
-	signup := r.Group("/signup")
+	login := r.Group("/login", SetProvider())
 
-	signup.GET("", func(c *gin.Context) {
+	login.POST("", user.Login)
 
-		c.HTML(http.StatusOK, "signup.html", gin.H{})
-	})
-	signup.POST("", user.Signup)
-
-	signup.GET("/verification", user.Verification)
-
-	login := r.Group("/login")
-
+	//user defined
 	login.GET("", func(c *gin.Context) {
 
 		c.HTML(http.StatusOK, "login.html", gin.H{})
 	})
 
-	login.GET("/google", func(c *gin.Context) {
+	login.GET("/:provider", user.OauthLogin)
 
-		redirectURL := oauth.GoogleOAuthURL()
-		c.Redirect(http.StatusSeeOther, redirectURL)
-	})
-
-	login.GET("/facebook", func(c *gin.Context) {
+	/* 	login.GET("/facebook", func(c *gin.Context) {
 
 		redirectURL := oauth.FackbookOAuthURL()
 		c.Redirect(http.StatusSeeOther, redirectURL)
-	})
+	}) */
 
 	r.Run(":3000")
 }

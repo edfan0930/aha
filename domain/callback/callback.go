@@ -2,7 +2,6 @@ package callback
 
 type (
 	Callback interface {
-		Client()[]byte
+		Client() []byte
 	}
 )
-
