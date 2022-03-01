@@ -21,7 +21,7 @@ func Oauth2(c *gin.Context) {
 	}
 
 	fmt.Println("user", gothUser)
-	storage.NewSession(storage.PassSecure(c.Request)).Login(c.Writer, c.Request, gothUser.Email, gothUser.Name)
+	storage.NewSession(storage.PassSecure(c.Request)).Login(c.Writer, c.Request, gothUser.Email, gothUser.Name, true)
 
 	c.Redirect(http.StatusSeeOther, "/dashboard/profile")
 

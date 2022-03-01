@@ -2,7 +2,6 @@ package user
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/markbates/goth/gothic"
@@ -46,9 +45,15 @@ func Login(c *gin.Context) {
 	}
 
 	session := storage.NewSession(storage.PassSecure(c.Request))
-	if err := session.Login(c.Writer, c.Request, user.Email, user.Name); err != nil {
+	if err := session.Login(c.Writer, c.Request, user.Email, user.Name, user.Verified); err != nil {
 
 		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
+		return
+	}
+
+	if !user.Verified {
+
+		c.Redirect(http.StatusSeeOther, "/login/revalidate")
 		return
 	}
 
@@ -57,11 +62,11 @@ func Login(c *gin.Context) {
 
 //OauthLogin
 func OauthLogin(c *gin.Context) {
-	fmt.Println("start")
+
 	if user, err := gothic.CompleteUserAuth(c.Writer, c.Request); err == nil {
 
 		session := storage.NewSession(storage.PassSecure(c.Request))
-		if err := session.Login(c.Writer, c.Request, user.Email, user.Name); err != nil {
+		if err := session.Login(c.Writer, c.Request, user.Email, user.Name, true); err != nil {
 
 			c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
 			return
@@ -70,6 +75,5 @@ func OauthLogin(c *gin.Context) {
 		c.Redirect(http.StatusSeeOther, "/dashboard/profile")
 	}
 
-	fmt.Println("---------------------store", gothic.Store)
 	gothic.BeginAuthHandler(c.Writer, c.Request)
 }

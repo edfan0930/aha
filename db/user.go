@@ -24,15 +24,15 @@ const (
 
 type (
 	User struct {
-		Email       string `gorm:"primaryKey"`
+		Email       string `gorm:"primaryKey" json:"email"`
 		Password    string
-		Name        string
-		LoggedIn    int64
+		Name        string `json:"name"`
+		LoggedIn    int64  `json:"logged_in"`
 		VerifyToken string
 		Verified    bool      `gorm:"index"`
 		UpdatedAt   time.Time `gorm:"index"`
-		SessionAt   time.Time `gorm:"index"`
-		CreatedAt   time.Time
+		SessionAt   time.Time `gorm:"index" json:"session_at"`
+		CreatedAt   time.Time `json:"created_at"`
 	}
 )
 

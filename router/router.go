@@ -28,15 +28,43 @@ func InitRouter() {
 
 	r.Use(requestid.New())
 
-	signup := r.Group("/signup")
+	//
+	r.GET("/", func(c *gin.Context) {
 
-	signup.GET("", func(c *gin.Context) {
+		session, err := storage.UserHandler(c.Request)
+		if err != nil {
+
+			c.Redirect(http.StatusSeeOther, "/login")
+			return
+		}
+
+		l := session.Values[storage.StorageKey.Email]
+		email, _ := l.(string)
+		if email == "" {
+
+			c.Redirect(http.StatusSeeOther, "/login")
+			return
+		}
+
+		v := session.Values[storage.StorageKey.Verified]
+		verified, _ := v.(string)
+		if verified == "" || verified == "false" {
+
+			c.Redirect(http.StatusSeeOther, "/login/revalidate")
+			return
+		}
+
+		c.Redirect(http.StatusSeeOther, "/profile")
+	})
+
+	//signup view
+	r.GET("/signup", func(c *gin.Context) {
 
 		c.HTML(http.StatusOK, "signup.html", gin.H{})
 	})
-	signup.POST("", user.Signup)
 
-	signup.GET("/verification", user.Verification)
+	//signup post
+	r.POST("/signup", user.Signup)
 
 	//Dashboard methods
 	Dashboard(r)
@@ -44,25 +72,9 @@ func InitRouter() {
 	//Callback methods
 	Callback(r)
 
+	//login methods
+	Login(r)
 	//
-	r.GET("/", func(c *gin.Context) {
-
-		session, err := storage.UserHandler(c.Request)
-		if err != nil {
-
-			c.Redirect(http.StatusSeeOther, "/signup")
-			return
-		}
-
-		l := session.Values[storage.StorageKey.Email]
-		email, _ := l.(string)
-		if email == "" {
-			c.Redirect(http.StatusSeeOther, "/login")
-			return
-		}
-
-		c.Redirect(http.StatusSeeOther, "/dashboard")
-	})
 
 	u := r.Group("/user")
 
@@ -137,18 +149,6 @@ func InitRouter() {
 		*/
 		//		c.JSON(http.StatusOK, c.Query("code"))
 	})
-
-	login := r.Group("/login", SetProvider())
-
-	login.POST("", user.Login)
-
-	//user defined
-	login.GET("", func(c *gin.Context) {
-
-		c.HTML(http.StatusOK, "login.html", gin.H{})
-	})
-
-	login.GET("/:provider", user.OauthLogin)
 
 	/* 	login.GET("/facebook", func(c *gin.Context) {
 

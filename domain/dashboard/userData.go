@@ -18,9 +18,12 @@ func UserData(c *gin.Context) {
 		return
 	}
 
+	userList, err := db.UserList()
+
 	c.HTML(http.StatusOK, "dashboard.html", gin.H{
 		"total_signed_up": statistics.Total,
-		"session_today":   statistics.SessionToday,
-		"activ_average":   statistics.ActiveAVG,
+		"sessions_today":  statistics.SessionsToday,
+		"active_average":  statistics.ActiveAVG,
+		"list":            userList,
 	})
 }

@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/edfan0930/aha/utils"
@@ -10,14 +11,14 @@ import (
 type (
 	userStatistics struct {
 		//		LastSeven
-		Total        int `json:"total" gorm:"total"`
-		SessionToday int `json:"session_today"`
-		ActiveAVG    int `json:"active_avg"`
+		Total         int `json:"total" gorm:"total"`
+		SessionsToday int `json:"sessions_today"`
+		ActiveAVG     int `json:"active_avg"`
 	}
 
 	LastSeven struct {
-		ActiveSession []int   `json:"active_session"`
-		ActiveAVG     float64 `json:"active_avg"`
+		ActiveSessions []int   `json:"active_sessions"`
+		ActiveAVG      float64 `json:"active_avg"`
 	}
 
 	ActiveSession struct {
@@ -25,8 +26,7 @@ type (
 		Total int    `json:"total"`
 	}
 
-	Users struct {
-	}
+	Users []User
 )
 
 //SevenDaySession active session users in the last 7 days
@@ -51,10 +51,10 @@ func TotalSignedUp() (int, error) {
 	return 0, nil
 }
 
-func SessionToday() (*Users, error) {
+/* func SessionToday() (*Users, error) {
 
 	return &Users{}, nil
-}
+} */
 
 func UserStatistics() (*userStatistics, error) {
 
@@ -65,7 +65,7 @@ func UserStatistics() (*userStatistics, error) {
 		return nil, tx.Error
 	}
 
-	tx = MainSession.Gorm.Raw("SELECT COUNT(*) AS session_today FROM users WHERE session_at = ?", utils.GetDateNow()).Scan(u)
+	tx = MainSession.Gorm.Raw("SELECT COUNT(*) AS sessions_today FROM users WHERE session_at = ?", utils.GetDateNow()).Scan(u)
 	if tx.Error != nil {
 
 		return nil, tx.Error
@@ -73,18 +73,29 @@ func UserStatistics() (*userStatistics, error) {
 
 	start, end := SevenDayRange()
 	l := new(LastSeven)
-	tx = MainSession.Gorm.Raw("SELECT COUNT(*) AS active_session FROM users WHERE session_at BETWEEN ? AND ? GROUP BY session_at", start, end).Scan(&l.ActiveSession)
+	tx = MainSession.Gorm.Raw("SELECT COUNT(*) AS active_sessions FROM users WHERE session_at BETWEEN ? AND ? GROUP BY session_at", start, end).Scan(&l.ActiveSessions)
 	if tx.Error != nil {
 
 		return nil, tx.Error
 	}
 
 	var total int
-	for _, v := range l.ActiveSession {
+	for _, v := range l.ActiveSessions {
 		total += v
 	}
 
-	u.ActiveAVG = total / len(l.ActiveSession)
+	u.ActiveAVG = total / len(l.ActiveSessions)
 
+	fmt.Println("user data", u)
 	return u, nil
+}
+
+//UserList
+func UserList() (*Users, error) {
+
+	u := new(Users)
+
+	//	tx := MainSession.Gorm.Raw("SELECT email,name,logged_in,session_at,created_at FROM users").Scan(u)
+	tx := MainSession.Gorm.Model(&User{}).Select("email", "name", "logged_in", "session_at", "created_at").Find(u)
+	return u, tx.Error
 }

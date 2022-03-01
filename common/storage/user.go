@@ -33,11 +33,22 @@ func (s *Session) GetName(r *http.Request) string {
 }
 
 //Login
-func (s *Session) Login(w http.ResponseWriter, r *http.Request, email, name string) error {
+func (s *Session) Login(w http.ResponseWriter, r *http.Request, email, name string, verified bool) error {
+
+	var v string
+	if verified {
+
+		v = "true"
+	}
+	if !verified {
+
+		v = "false"
+	}
 
 	s.SetValue(StorageKey.Email, email)
 	s.SetValue(StorageKey.Logged, "true")
 	s.SetValue(StorageKey.Name, name)
+	s.SetValue(StorageKey.Verified, v)
 	s.ResetMaxAge()
 
 	return s.Save(w, r)
