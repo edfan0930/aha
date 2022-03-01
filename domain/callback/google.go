@@ -20,7 +20,8 @@ import (
 
 //Google
 func Google(c *gin.Context) {
-	c.Request.Header.Set("provider", "Google")
+
+	fmt.Println("in", c.Param("provider"))
 	user, err := gothic.CompleteUserAuth(c.Writer, c.Request)
 	if err != nil {
 
