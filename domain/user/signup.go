@@ -26,7 +26,7 @@ type (
 func Signup(c *gin.Context) {
 
 	r := NewSignupConfirm()
-	if err := c.BindJSON(r); err != nil {
+	if err := c.Bind(r); err != nil {
 		c.JSON(http.StatusBadRequest, response.Error(err.Error()))
 		return
 	}
@@ -48,7 +48,8 @@ func Signup(c *gin.Context) {
 		return
 	}
 
-	email.VerificationEmail([]string{r.Email})
+	// email.VerificationEmail(r.Email)
+	email.VerificationEmail("edfan0930@gmail.com")
 
 	c.JSON(http.StatusOK, r)
 }

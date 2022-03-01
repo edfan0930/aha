@@ -7,11 +7,13 @@ import (
 
 func Callback(r *gin.Engine) {
 
-	c := r.Group("/callback")
+	c := r.Group("/callback", SetProvider())
 
-	c.GET("google", callback.Google)
+	c.GET("/:provider", callback.Oauth2)
 
-	c.GET("facebook", callback.Facebook)
+	c.GET("/email",)
+	//	c.GET("google", callback.Google)
 
-	
+	//c.GET("facebook", callback.Facebook)
+
 }

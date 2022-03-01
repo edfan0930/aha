@@ -30,7 +30,7 @@ require (
 	github.com/ugorji/go/codec v1.1.7 // indirect
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9 // indirect
 	golang.org/x/net v0.0.0-20200930145003-4acb6c075d10 // indirect
-	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 // indirect
+	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
 	google.golang.org/appengine v1.6.6 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/yaml.v2 v2.2.8 // indirect
@@ -38,7 +38,8 @@ require (
 
 require (
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
-	github.com/json-iterator/go v1.1.12 // indirect
+	github.com/gorilla/pat v0.0.0-20180118222023-199c85a7f6d1
+	github.com/json-iterator/go v1.1.12
 	golang.org/x/sys v0.0.0-20200905004654-be1d3432aa8f // indirect
 	gorm.io/driver/mysql v1.3.2
 	gorm.io/gorm v1.23.1

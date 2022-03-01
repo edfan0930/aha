@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/edfan0930/aha/common/storage"
-
 	"github.com/edfan0930/aha/domain/response"
 
 	"github.com/edfan0930/aha/utils"
@@ -21,6 +19,8 @@ import (
 //Google
 func Google(c *gin.Context) {
 	c.Request.Header.Set("provider", "Google")
+	s, err := gothic.GetProviderName(c.Request)
+	fmt.Println("provider", s, err)
 	user, err := gothic.CompleteUserAuth(c.Writer, c.Request)
 	if err != nil {
 
@@ -69,12 +69,12 @@ func Google(c *gin.Context) {
 		return
 	}
 
-	s := storage.NewSession(storage.PassSecure(c.Request))
-	if err := s.Login(c.Writer, c.Request, u.Email, u.Name); err != nil {
+	/* 	s := storage.NewSession(storage.PassSecure(c.Request))
+	   	if err := s.Login(c.Writer, c.Request, u.Email, u.Name); err != nil {
 
-		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
-		return
-	}
+	   		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
+	   		return
+	   	} */
 
 	c.Redirect(http.StatusSeeOther, "/home")
 }
