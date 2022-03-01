@@ -51,7 +51,7 @@ func NewUser(email string) *User {
 //First
 func First(session *MySQL, context context.Context, email string) (*User, error) {
 	u := &User{}
-	tx := session.Gorm.First(u, email)
+	tx := session.Gorm.First(u, "email = ?", email)
 	return u, tx.Error
 }
 
@@ -85,6 +85,20 @@ func (u *User) SetVerifyToken(v string) *User {
 	return u
 }
 
+func (u *User) SetVerified(v bool) *User {
+	u.Verified = v
+	return u
+}
+
+func (u *User) SetName(name string) *User {
+	u.Name = name
+	return u
+}
+
+func (u *User) AddLoggedIn() *User {
+	u.LoggedIn++
+	return u
+}
 func (u *User) Create(session *MySQL, context context.Context) error {
 
 	result := session.Gorm.Create(u)

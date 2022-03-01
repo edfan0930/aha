@@ -3,7 +3,9 @@ package user
 import (
 	"net/http"
 
+	"github.com/edfan0930/aha/common/storage"
 	"github.com/edfan0930/aha/db"
+	"github.com/edfan0930/aha/domain/response"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,6 +29,13 @@ func Verification(c *gin.Context) {
 	user := db.NewUser(r.Account)
 	if err := user.UpdateVerified(db.MainSession, c, r.Token); err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	session := storage.NewSession(storage.PassSecure(c.Request))
+	if err := session.Verified(c.Writer, c.Request); err != nil {
+
+		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
 		return
 	}
 

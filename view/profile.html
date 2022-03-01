@@ -3,7 +3,7 @@
         User Profile
     </h1>
     <h2>
-        <span><a href="/">User Profile</a></span> / <span><a href="/"> User Data</a></span>
+        <span><a href="/dashboard/profile">User Profile</a></span> / <span><a href="/dashboard"> User Data</a></span>
     </h2>
     <br>
     <h2>
@@ -11,8 +11,10 @@
         <P>{{ .email }}</P>
     </h2>
     <h2>
+        {{if .couldReset}}
         <a href="/dashboard/resetPassword">Reset Password</a> 
+        {{end}}
         <p></p>
-        <a href="/dashboard/logout">logout</a>
+        <a href="/user/logout">logout</a>
     </h2>
 </html>

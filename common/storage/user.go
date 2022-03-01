@@ -54,6 +54,13 @@ func (s *Session) Login(w http.ResponseWriter, r *http.Request, email, name stri
 	return s.Save(w, r)
 }
 
+//Verified
+func (s *Session) Verified(w http.ResponseWriter, r *http.Request) error {
+
+	s.SetValue(StorageKey.Verified, "true")
+	return s.Save(w, r)
+}
+
 //Logout
 func (s *Session) Logout(w http.ResponseWriter, r *http.Request) error {
 
