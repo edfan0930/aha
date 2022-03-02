@@ -13,7 +13,7 @@ import (
 type resetPassword struct {
 	Old     string `json:"old" form:"old" binding:"required"`
 	New     string `json:"new" form:"new" binding:"required"`
-	ReEnter string `json:"re_enter" form:"re_enter" binding:"required,eqfield=New"`
+	Confirm string `json:"confirm" form:"confirm" binding:"required,eqfield=New"`
 }
 
 //ResetPassword
@@ -41,4 +41,9 @@ func ResetPassword(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
 		return
 	}
+}
+
+func ResetPasswordView(c *gin.Context) {
+
+	c.HTML(http.StatusOK, "resetPassword.html", gin.H{})
 }

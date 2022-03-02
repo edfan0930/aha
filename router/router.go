@@ -3,8 +3,6 @@ package router
 import (
 	"net/http"
 
-	"github.com/markbates/goth/gothic"
-
 	"github.com/edfan0930/aha/domain/user"
 
 	"github.com/gin-contrib/requestid"
@@ -15,6 +13,7 @@ import (
 func InitRouter() {
 
 	r := gin.Default()
+
 	r.LoadHTMLGlob("view/*")
 
 	r.Use(requestid.New())
@@ -41,27 +40,8 @@ func InitRouter() {
 	//login methods
 	Login(r)
 
-	u := r.Group("/user", VerfySession(), Verified())
-
-	//reset password
-	u.PUT("/password", user.ResetPassword)
-
-	//update name
-	u.POST("/name", user.ResetName)
-
-	//update name view
-	u.GET("/name-view", func(c *gin.Context) {
-
-		name := c.Request.Header.Get("name")
-		c.HTML(http.StatusOK, "updateName.html", gin.H{"name": name})
-	})
-
-	//logout
-	u.GET("/logout", func(c *gin.Context) {
-
-		gothic.Logout(c.Writer, c.Request)
-		user.Logout(c)
-	})
+	//user methods
+	User(r)
 
 	r.Run(":3000")
 }
