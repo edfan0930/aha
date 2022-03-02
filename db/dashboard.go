@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/edfan0930/aha/utils"
@@ -51,11 +50,6 @@ func TotalSignedUp() (int, error) {
 	return 0, nil
 }
 
-/* func SessionToday() (*Users, error) {
-
-	return &Users{}, nil
-} */
-
 func UserStatistics() (*userStatistics, error) {
 
 	u := &userStatistics{}
@@ -86,7 +80,6 @@ func UserStatistics() (*userStatistics, error) {
 
 	u.ActiveAVG = total / len(l.ActiveSessions)
 
-	fmt.Println("user data", u)
 	return u, nil
 }
 

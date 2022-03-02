@@ -15,7 +15,7 @@ func Login(r *gin.Engine) {
 	//帳密登入
 	login.POST("", user.Login)
 
-	//user defined
+	//login view
 	login.GET("", func(c *gin.Context) {
 
 		c.HTML(http.StatusOK, "login.html", gin.H{})
@@ -24,7 +24,6 @@ func Login(r *gin.Engine) {
 	//重新寄送 email
 	login.GET("/revalidate", func(c *gin.Context) {
 
-		
 		c.HTML(http.StatusOK, "revalidate.html", gin.H{})
 	})
 

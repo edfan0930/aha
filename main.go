@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+
 	oauth2.SetProvider("http://localhost:3000/callback")
 	oauth2.SetStore(storage.Store.Key)
 

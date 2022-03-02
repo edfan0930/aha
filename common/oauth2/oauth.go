@@ -19,7 +19,10 @@ const (
 func SetProvider(url string) {
 
 	goth.UseProviders(
-		google.New(GoogleKey, GoogleSecret, GenerURI(url, "google")),
+		google.New(GoogleKey, GoogleSecret, GenerURI(url, "google"),
+			"https://www.googleapis.com/auth/userinfo.email",
+			"https://www.googleapis.com/auth/userinfo.profile",
+		),
 		facebook.New(FBKey, FBSecret, GenerURI(url, "facebook")),
 	)
 }

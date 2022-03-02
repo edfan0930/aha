@@ -32,6 +32,12 @@ func (s *Session) GetName(r *http.Request) string {
 	return s.GetValue(StorageKey.Name)
 }
 
+//GetVerified
+func (s *Session) GetVerified(r *http.Request) string {
+
+	return s.GetValue(StorageKey.Verified)
+}
+
 //Login
 func (s *Session) Login(w http.ResponseWriter, r *http.Request, email, name string, verified bool) error {
 

@@ -22,14 +22,15 @@ func InitRouter() {
 	//main page
 	r.GET("/", user.Home)
 
+	signup := r.Group("/signup", HasLogged())
 	//signup view
-	r.GET("/signup", func(c *gin.Context) {
+	signup.GET("", func(c *gin.Context) {
 
 		c.HTML(http.StatusOK, "signup.html", gin.H{})
 	})
 
 	//signup post
-	r.POST("/signup", user.Signup)
+	signup.POST("", user.Signup)
 
 	//Dashboard methods
 	Dashboard(r)
@@ -40,10 +41,22 @@ func InitRouter() {
 	//login methods
 	Login(r)
 
-	u := r.Group("/user")
+	u := r.Group("/user", VerfySession(), Verified())
 
-	u.PUT("/password", user.ResetPassword) //reset password
+	//reset password
+	u.PUT("/password", user.ResetPassword)
 
+	//update name
+	u.POST("/name", user.ResetName)
+
+	//update name view
+	u.GET("/name-view", func(c *gin.Context) {
+
+		name := c.Request.Header.Get("name")
+		c.HTML(http.StatusOK, "updateName.html", gin.H{"name": name})
+	})
+
+	//logout
 	u.GET("/logout", func(c *gin.Context) {
 
 		gothic.Logout(c.Writer, c.Request)

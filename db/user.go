@@ -181,6 +181,7 @@ func (u *User) UpdatePassword(session *MySQL, context context.Context, password 
 	return t.Error
 }
 
+//
 func (u *User) Save(session *MySQL, context context.Context) error {
 
 	tx := session.Gorm.Save(u)

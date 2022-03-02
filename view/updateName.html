@@ -1,6 +1,6 @@
 <html>
     <h1>
-        User Profile
+        Reset Name
     </h1>
     <h2>
         <span><a href="/dashboard/profile">User Profile</a></span> / <span><a href="/dashboard"> User Data</a></span> / 
@@ -13,10 +13,14 @@
     </h2>
     <br>
     <h2>
-        <p>{{ .name }}</p>
-        <P>{{ .email }}</P>
-    </h2>
-    <h2>
-       <p><a href="/user/name-view">Reset Name</a></p>
+        <p>Hi {{ .name}}</p>
+        <form method="post" action="/user/name">
+            <p>
+                <label for="name">Reset Name</label>
+                <input type="text" name="name" id="name"/>
+            </p>
+ 
+            <input type="submit" />
+        </form>
     </h2>
 </html>

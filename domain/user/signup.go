@@ -63,7 +63,6 @@ func Signup(c *gin.Context) {
 	}
 
 	c.Redirect(http.StatusSeeOther, "/")
-	// c.JSON(http.StatusOK, r)
 }
 
 //NewSignupConfirm

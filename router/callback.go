@@ -11,7 +11,6 @@ func Callback(r *gin.Engine) {
 
 	c.GET("/:provider", callback.Oauth2)
 
-	c.GET("/email")
 	//	c.GET("google", callback.Google)
 
 	//c.GET("facebook", callback.Facebook)

@@ -34,7 +34,7 @@ func example() gin.HandlerFunc {
 //VerfySession
 func VerfySession() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		
+
 		s, err := storage.UserHandler(c.Request)
 		if err != nil {
 
@@ -47,14 +47,45 @@ func VerfySession() gin.HandlerFunc {
 		logged := session.GetLoggedOn(c.Request)
 		name := session.GetName(c.Request)
 
-		c.Request.Header.Add("email", email)
-		c.Request.Header.Add("name", name)
-
 		if logged == "" {
 			logged = "false"
 		}
 
 		c.Request.Header.Add("logged", logged)
+		c.Request.Header.Add("email", email)
+		c.Request.Header.Add("name", name)
+
+		c.Next()
+	}
+}
+
+func Verified() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		s := storage.NewSession(storage.PassSecure(c.Request))
+		isVerified := s.GetVerified(c.Request)
+		if isVerified != "true" {
+			c.Redirect(http.StatusSeeOther, "/")
+			return
+		}
+
+		c.Next()
+	}
+}
+
+func HasLogged() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		s, err := storage.UserHandler(c.Request)
+		if err == nil {
+
+			logged := storage.NewSession(s).GetLoggedOn(c.Request)
+			if logged == "true" {
+
+				c.Redirect(http.StatusSeeOther, "/")
+				return
+			}
+		}
 
 		c.Next()
 	}

@@ -33,6 +33,7 @@ func Email(c *gin.Context) {
 	}
 
 	if user.VerifyToken != token {
+
 		c.JSON(http.StatusBadRequest, response.Error("wrong token"))
 		return
 	}

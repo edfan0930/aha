@@ -3,9 +3,14 @@
         User Data     
     </h1>   
     <h2>
-        <span><a href="/dashboard"> User Data</a></span> / <span><a href="/dashboard/profile">User Profile</a></span> 
-    </h2>
- 
+        <span><a href="/dashboard/profile">User Profile</a></span> / <span><a href="/dashboard"> User Data</a></span> / 
+        {{if .couldReset}}
+        <span>
+            <a href="/dashboard/resetPassword">Reset Password</a> 
+        </span> / 
+        {{end}}
+        <span><a href="/user/logout">Logout</a></span> 
+    </h2> 
     <table>
         <tr>
             <th>total signed up: {{ .total_signed_up}}</th>
