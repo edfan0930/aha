@@ -16,16 +16,15 @@ func Home(c *gin.Context) {
 		return
 	}
 
-	l := session.Values[storage.StorageKey.Email]
-	email, _ := l.(string)
+	s := storage.NewSession(session)
+	email := s.GetEmail(c.Request)
 	if email == "" {
 
 		c.Redirect(http.StatusSeeOther, "/login")
 		return
 	}
 
-	v := session.Values[storage.StorageKey.Verified]
-	verified, _ := v.(string)
+	verified := s.GetVerified(c.Request)
 	if verified == "" || verified == "false" {
 
 		c.Redirect(http.StatusSeeOther, "/login/revalidate")

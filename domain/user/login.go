@@ -65,8 +65,15 @@ func OauthLogin(c *gin.Context) {
 
 	if user, err := gothic.CompleteUserAuth(c.Writer, c.Request); err == nil {
 
+		u, err := db.First(db.MainSession, c, user.Email)
+		if err != nil {
+
+			c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
+			return
+		}
+
 		session := storage.NewSession(storage.PassSecure(c.Request))
-		if err := session.Login(c.Writer, c.Request, user.Email, user.Name, true); err != nil {
+		if err := session.Login(c.Writer, c.Request, user.Email, u.Name, true); err != nil {
 
 			c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
 			return

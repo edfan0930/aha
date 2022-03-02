@@ -37,10 +37,10 @@ func ResetName(c *gin.Context) {
 
 		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
 		return
-	}
+}
 
 	session := storage.NewSession(storage.PassSecure(c.Request))
 	session.SetValue("name", u.Name).Save(c.Writer, c.Request)
 
-	c.Redirect(http.StatusSeeOther, "/user/profile")
+	c.Redirect(http.StatusSeeOther, "/dashboard/profile")
 }

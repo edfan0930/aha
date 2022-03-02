@@ -52,6 +52,8 @@ func Signup(c *gin.Context) {
 	// email.VerificationEmail(r.Email)
 	e := email.NewEmail(r.Email)
 	query := fmt.Sprintf("token=%s&account=%s", token, e.Address)
+
+	//todo host
 	e.SetURI("http://localhost:3000/login/verification", query)
 	e.VerificationEmail()
 

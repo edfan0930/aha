@@ -16,15 +16,14 @@ func User(r *gin.Engine) {
 	//put
 	u.POST("/password", user.ResetPassword)
 
-	u.GET("/password", func(c *gin.Context) {
-
-	})
+	//reset password
+	u.GET("/password-view", user.ResetPasswordView)
 
 	//update name
 	//put
 	u.POST("/name", user.ResetName)
 
-	//update name view
+	//reset name view
 	u.GET("/name-view", func(c *gin.Context) {
 
 		name := c.Request.Header.Get("name")

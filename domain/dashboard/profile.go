@@ -10,7 +10,7 @@ import (
 
 func Profile(c *gin.Context) {
 	email := c.Request.Header.Get("email")
-	name := c.Request.Header.Get("name")
+	//name := c.Request.Header.Get("name")
 
 	user, err := db.First(db.MainSession, c, email)
 	if err != nil {
@@ -24,8 +24,8 @@ func Profile(c *gin.Context) {
 	}
 
 	c.HTML(http.StatusOK, "profile.html", gin.H{
-		"email":      email,
-		"name":       name,
+		"email":      user.Email,
+		"name":       user.Name,
 		"couldReset": reset,
 	})
 }

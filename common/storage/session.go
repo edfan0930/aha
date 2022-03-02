@@ -95,6 +95,7 @@ func (s *Session) SetValue(key, value string) *Session {
 func (s *Session) GetValue(key string) string {
 
 	v := s.S.Values[key]
+	value, _ := v.(string)
 
-	return v.(string)
+	return value
 }

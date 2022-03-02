@@ -10,7 +10,7 @@ import (
 func Login(r *gin.Engine) {
 
 	//
-	login := r.Group("/login", SetProvider())
+	login := r.Group("/login", SetProvider(), HasLogged())
 
 	//帳密登入
 	login.POST("", user.Login)
@@ -21,16 +21,20 @@ func Login(r *gin.Engine) {
 		c.HTML(http.StatusOK, "login.html", gin.H{})
 	})
 
-	//重新寄送 email
-	login.GET("/revalidate", func(c *gin.Context) {
-
-		c.HTML(http.StatusOK, "revalidate.html", gin.H{})
-	})
-
 	//驗證mail
 	login.GET("/verification", user.Verification)
 
 	//oauth2 login
 	login.GET("/:provider", user.OauthLogin)
+
+	//revalidate view
+	re := login.Group("/revalidate", VerfySession())
+	re.GET("", func(c *gin.Context) {
+
+		c.HTML(http.StatusOK, "revalidate.html", gin.H{})
+	})
+
+	//resend resend email
+	re.GET("/resend", user.ResendEmail)
 
 }

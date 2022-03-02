@@ -1,8 +1,10 @@
 package user
 
 import (
+	"fmt"
 	"net/http"
 
+	"github.com/edfan0930/aha/common/email"
 	"github.com/edfan0930/aha/common/storage"
 	"github.com/edfan0930/aha/db"
 	"github.com/edfan0930/aha/domain/response"
@@ -40,4 +42,28 @@ func Verification(c *gin.Context) {
 	}
 
 	c.Redirect(http.StatusSeeOther, "/")
+}
+
+func ResendEmail(c *gin.Context) {
+
+	e := c.Request.Header.Get("email")
+	if e == "" {
+
+		c.JSON(http.StatusBadRequest, response.Error("bad request"))
+		return
+	}
+
+	user, err := db.First(db.MainSession, c, e)
+	if err != nil {
+
+		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
+	}
+
+	es := email.NewEmail(e)
+	query := fmt.Sprintf("token=%s&account=%s", user.VerifyToken, es.Address)
+	//todo host
+	es.SetURI("http://localhost:3000/login/verification", query)
+	es.VerificationEmail()
+
+	c.JSON(http.StatusOK, response.Success())
 }

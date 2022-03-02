@@ -1,10 +1,12 @@
 package user
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/edfan0930/aha/common/storage"
 	"github.com/edfan0930/aha/db"
+	"gorm.io/gorm"
 
 	"github.com/edfan0930/aha/domain/response"
 	"github.com/gin-gonic/gin"
@@ -35,12 +37,25 @@ func ResetPassword(c *gin.Context) {
 
 	email := c.Request.Header.Get(storage.StorageKey.Email)
 
-	//
-	if err := db.NewUser(email).UpdatePassword(db.MainSession, c, r.New); err != nil {
+	user, err := db.WhereFirst(db.MainSession, c, db.User{Email: email, Password: r.Old})
+	if err != nil {
+
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusBadRequest, response.Error("The password you have entered is incorrect."))
+			return
+		}
 
 		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
 		return
 	}
+
+	if err := user.UpdatePassword(db.MainSession, c, r.New); err != nil {
+
+		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, response.Success())
 }
 
 func ResetPasswordView(c *gin.Context) {
