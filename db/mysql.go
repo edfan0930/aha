@@ -11,11 +11,10 @@ import (
 
 var MainSession *MySQL
 
-func init() {
+func InitDB(account, password, host, dbName string) {
 
-	//todo config
 	var err error
-	MainSession, err = NewMySQL("root", "1234", "127.0.0.1", "aha")
+	MainSession, err = NewMySQL(account, password, host, dbName)
 	if err != nil {
 		panic("sql init: " + err.Error())
 	}
