@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/edfan0930/aha/common/storage"
+	"github.com/edfan0930/aha/db"
 	"github.com/edfan0930/aha/domain/response"
 	"github.com/gin-gonic/gin"
 )
@@ -47,6 +48,8 @@ func VerfySession() gin.HandlerFunc {
 		logged := session.GetLoggedOn(c.Request)
 		name := session.GetName(c.Request)
 
+		user := db.NewUser(email)
+		user.UpdateSessionAt(db.MainSession, c)
 		if logged == "" {
 			logged = "false"
 		}
