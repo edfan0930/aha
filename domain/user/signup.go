@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"unicode"
 
+	"github.com/edfan0930/aha/env"
+
 	"github.com/edfan0930/aha/common/email"
 	"github.com/edfan0930/aha/common/storage"
 	"github.com/edfan0930/aha/domain/response"
@@ -41,6 +43,7 @@ func Signup(c *gin.Context) {
 	token := utils.GenerUUID()
 	if token == "" {
 		c.JSON(http.StatusInternalServerError, response.Error("gener uuid error"))
+		return
 	}
 
 	user := db.NewUser(r.Email).Signup(r.Password, token)
@@ -51,10 +54,10 @@ func Signup(c *gin.Context) {
 
 	// email.VerificationEmail(r.Email)
 	e := email.NewEmail(r.Email)
-	query := fmt.Sprintf("token=%s&account=%s", token, e.Address)
+	query := fmt.Sprintf("token=%s&account=%s", token, user.Email)
 
 	//todo host
-	e.SetURI("http://localhost:3000/login/verification", query)
+	e.SetURI(env.ServerDomain+"/login/verification", query)
 	e.VerificationEmail()
 
 	session := storage.NewSession(storage.PassSecure(c.Request))

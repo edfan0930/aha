@@ -31,6 +31,15 @@ func InitRouter() {
 	//signup post
 	signup.POST("", user.Signup)
 
+	re := r.Group("/revalidate", VerfySession())
+	re.GET("", func(c *gin.Context) {
+
+		c.HTML(http.StatusOK, "revalidate.html", gin.H{})
+	})
+
+	//resend resend email
+	re.GET("/resend", user.ResendEmail)
+
 	//Dashboard methods
 	Dashboard(r)
 

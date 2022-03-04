@@ -4,50 +4,54 @@ import (
 	"fmt"
 	"net/smtp"
 
-	"github.com/edfan0930/aha/env"
-
 	"github.com/jordan-wright/email"
 )
 
 var (
-	from string = fmt.Sprintf("Ed Fan <%s>", env.Email)
+	FromAndName string
+	From        string
 )
 
 type (
 	Email struct {
-		URI     string `json:"uri"`
-		Address string `json:"address"`
-		Token   string `json:"token"`
+		Callback string `json:"callback"`
+		To       string `json:"to"`
+		Token    string `json:"token"`
 	}
 )
 
+func InitEmail(from string) {
+	FromAndName = fmt.Sprintf("Ed Fan <%s>", from)
+	From = from
+}
+
 //NewEmail
-func NewEmail(address string) *Email {
+func NewEmail(to string) *Email {
 	return &Email{
-		Address: address,
+		To: to,
 	}
 }
 
 //VerificationEmail
-func (es *Email) VerificationEmail() {
+func (e *Email) VerificationEmail() {
 
-	e := email.NewEmail()
-	e.From = from
-	e.To = []string{es.Address}
-	e.Subject = "Please verify your email address"
-	e.Text = []byte("Text Body is, of course, supported!")
-	e.HTML = []byte(fmt.Sprintf(`<a href="%s">Please verify your email address</a>`, es.URI))
+	ne := email.NewEmail()
+	ne.From = FromAndName
+	ne.To = []string{e.To}
+	ne.Subject = "Please verify your email address"
+	ne.Text = []byte("Text Body is, of course, supported!")
+	ne.HTML = []byte(fmt.Sprintf(`<a href="%s">Please verify your email address</a>`, e.Callback))
 
-	err := e.Send("smtp.gmail.com:587", smtp.PlainAuth("", env.Email, env.EmailPassword, "smtp.gmail.com"))
+	err := ne.Send("smtp.gmail.com:587", smtp.PlainAuth("", From, "ssaxcoohgkxobroj", "smtp.gmail.com"))
 	if err != nil {
 		fmt.Println("email error", err)
 	}
 }
 
 //SetURI
-func (es *Email) SetURI(url, query string) {
+func (e *Email) SetURI(url, query string) {
 
-	es.URI = url + "?" + query
+	e.Callback = url + "?" + query
 }
 
 //SetToken

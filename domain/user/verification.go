@@ -60,7 +60,7 @@ func ResendEmail(c *gin.Context) {
 	}
 
 	es := email.NewEmail(e)
-	query := fmt.Sprintf("token=%s&account=%s", user.VerifyToken, es.Address)
+	query := fmt.Sprintf("token=%s&account=%s", user.VerifyToken, user.Email)
 	//todo host
 	es.SetURI("http://localhost:3000/login/verification", query)
 	es.VerificationEmail()

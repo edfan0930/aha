@@ -26,15 +26,4 @@ func Login(r *gin.Engine) {
 
 	//oauth2 login
 	login.GET("/:provider", user.OauthLogin)
-
-	//revalidate view
-	re := login.Group("/revalidate", VerfySession())
-	re.GET("", func(c *gin.Context) {
-
-		c.HTML(http.StatusOK, "revalidate.html", gin.H{})
-	})
-
-	//resend resend email
-	re.GET("/resend", user.ResendEmail)
-
 }

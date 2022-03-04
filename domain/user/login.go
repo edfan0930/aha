@@ -53,7 +53,7 @@ func Login(c *gin.Context) {
 
 	if !user.Verified {
 
-		c.Redirect(http.StatusSeeOther, "/login/revalidate")
+		c.Redirect(http.StatusSeeOther, "/revalidate")
 		return
 	}
 

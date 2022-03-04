@@ -27,7 +27,7 @@ func Home(c *gin.Context) {
 	verified := s.GetVerified(c.Request)
 	if verified == "" || verified == "false" {
 
-		c.Redirect(http.StatusSeeOther, "/login/revalidate")
+		c.Redirect(http.StatusSeeOther, "/revalidate")
 		return
 	}
 
