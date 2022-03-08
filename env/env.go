@@ -1,6 +1,9 @@
 package env
 
 import (
+	"log"
+	"os"
+
 	"github.com/spf13/viper"
 )
 
@@ -16,6 +19,8 @@ var (
 	DBPassword    string
 	DBHost        string
 	DBName        string
+	DBConnectName string
+	SocketDir     string
 )
 
 func ReadConfig() error {
@@ -35,16 +40,22 @@ func SetENV() {
 
 	ServerDomain = emptyPanic("host")
 	GoogleKey = emptyPanic("oauth2.googleKey")
-
 	GoogleSecret = emptyPanic("oauth2.googleSecret")
 	FBKey = emptyPanic("oauth2.fbKey")
 	FBSecret = emptyPanic("oauth2.fbSecret")
 	Email = emptyPanic("email.account")
 	EmailPassword = emptyPanic("email.password")
-	DBAccount = emptyPanic("db.account")
-	DBPassword = emptyPanic("db.password")
+	DBAccount = mustGetenv("DB_USER")
+	DBPassword = mustGetenv("DB_PASS")
 	DBHost = emptyPanic("db.host")
-	DBName = emptyPanic("db.name")
+	DBConnectName = mustGetenv("INSTANCE_CONNECTION_NAME")
+	DBName = mustGetenv("DB_NAME")
+
+	var isSet bool
+	SocketDir, isSet = os.LookupEnv("DB_SOCKET_DIR")
+	if !isSet {
+		SocketDir = "/cloudsql"
+	}
 }
 
 //emptyPanic
@@ -52,6 +63,14 @@ func emptyPanic(key string) string {
 	v := viper.GetString(key)
 	if v == "" {
 		panic("config doesn't has:" + key)
+	}
+	return v
+}
+
+func mustGetenv(k string) string {
+	v := os.Getenv(k)
+	if v == "" {
+		log.Fatalf("Warning: %s environment variable not set.\n", k)
 	}
 	return v
 }

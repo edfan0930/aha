@@ -13,10 +13,9 @@ func main() {
 
 	env.SetENV()
 	email.InitEmail(env.Email)
-	db.InitDB(env.DBAccount, env.DBPassword, env.DBHost, env.DBName)
+	db.InitDB(env.DBAccount, env.DBPassword, env.SocketDir, env.DBConnectName, env.DBName)
 	oauth2.SetProvider(env.ServerDomain + "/callback")
 	oauth2.SetStore(storage.Store.Key)
-
 	router.InitRouter()
 
 }

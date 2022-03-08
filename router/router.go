@@ -52,5 +52,5 @@ func InitRouter() {
 	//user methods
 	User(r)
 
-	r.Run(":3000")
+	r.Run(":8080")
 }
