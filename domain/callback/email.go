@@ -3,6 +3,7 @@ package callback
 import (
 	"net/http"
 
+	"github.com/edfan0930/aha/common/storage"
 	"github.com/edfan0930/aha/db"
 
 	"github.com/edfan0930/aha/domain/response"
@@ -45,6 +46,9 @@ func Email(c *gin.Context) {
 			return
 		}
 	}
+
+	s := storage.NewSession(storage.PassSecure(c.Request))
+	s.Verified(c.Writer, c.Request)
 
 	c.Redirect(http.StatusSeeOther, "/")
 }

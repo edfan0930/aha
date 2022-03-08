@@ -8,6 +8,7 @@ import (
 	"github.com/edfan0930/aha/common/storage"
 	"github.com/edfan0930/aha/db"
 	"github.com/edfan0930/aha/domain/response"
+	"github.com/edfan0930/aha/env"
 
 	"github.com/gin-gonic/gin"
 )
@@ -46,24 +47,23 @@ func Verification(c *gin.Context) {
 
 func ResendEmail(c *gin.Context) {
 
-	e := c.Request.Header.Get("email")
-	if e == "" {
+	r := c.Request.Header.Get("email")
+	if r == "" {
 
 		c.JSON(http.StatusBadRequest, response.Error("bad request"))
 		return
 	}
 
-	user, err := db.First(db.MainSession, c, e)
+	user, err := db.First(db.MainSession, c, r)
 	if err != nil {
 
 		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
 	}
 
-	es := email.NewEmail(e)
+	e := email.NewEmail(r)
 	query := fmt.Sprintf("token=%s&account=%s", user.VerifyToken, user.Email)
-	//todo host
-	es.SetURI("http://localhost:3000/login/verification", query)
-	es.VerificationEmail()
+	e.SetURI(env.ServerDomain+"/login/verification", query)
+	e.VerificationEmail()
 
 	c.JSON(http.StatusOK, response.Success())
 }
