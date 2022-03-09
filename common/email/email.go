@@ -8,21 +8,25 @@ import (
 )
 
 var (
-	FromAndName string
-	From        string
+	fromAndName string
+	from        string
+	callbackURL string
 )
 
 type (
 	Email struct {
-		Callback string `json:"callback"`
-		To       string `json:"to"`
-		Token    string `json:"token"`
+		Callback      string `json:"callback"`
+		To            string `json:"to"`
+		Token         string `json:"token"`
+		CallBackQuery string
 	}
 )
 
-func InitEmail(from string) {
-	FromAndName = fmt.Sprintf("Ed Fan <%s>", from)
-	From = from
+//InitEmail init email field
+func InitEmail(sender, url string) {
+	fromAndName = fmt.Sprintf("Ed Fan <%s>", from)
+	from = sender
+	callbackURL = url
 }
 
 //NewEmail
@@ -32,29 +36,40 @@ func NewEmail(to string) *Email {
 	}
 }
 
-//VerificationEmail
-func (e *Email) VerificationEmail() {
+//VerificationEmail send email
+func (e *Email) VerificationEmail() error {
 
 	ne := email.NewEmail()
-	ne.From = FromAndName
+	ne.From = fromAndName
 	ne.To = []string{e.To}
 	ne.Subject = "Please verify your email address"
 	ne.Text = []byte("Text Body is, of course, supported!")
 	ne.HTML = []byte(fmt.Sprintf(`<a href="%s">Please verify your email address</a>`, e.Callback))
 
-	err := ne.Send("smtp.gmail.com:587", smtp.PlainAuth("", From, "ssaxcoohgkxobroj", "smtp.gmail.com"))
+	err := ne.Send("smtp.gmail.com:587", smtp.PlainAuth("", from, "ssaxcoohgkxobroj", "smtp.gmail.com"))
 	if err != nil {
 		fmt.Println("email error", err)
+
 	}
+	return err
 }
 
 //SetURI
-func (e *Email) SetURI(url, query string) {
+func (e *Email) SetURI() *Email {
 
-	e.Callback = url + "?" + query
+	e.Callback = callbackURL + "?" + e.CallBackQuery
+	return e
 }
 
 //SetToken
-func (es *Email) SetToken(token string) {
-	es.Token = token
+func (e *Email) SetToken(token string) {
+
+	e.Token = token
+}
+
+//SetQuery set callback query
+func (e *Email) SetQuery(token, account string) *Email {
+
+	e.CallBackQuery = fmt.Sprintf("token=%s&account=%s", token, account)
+	return e
 }
