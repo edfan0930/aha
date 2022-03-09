@@ -23,6 +23,7 @@ var (
 	SocketDir     string
 )
 
+//ReadConfig read in config
 func ReadConfig() error {
 
 	viper.SetConfigName("config")
@@ -31,6 +32,7 @@ func ReadConfig() error {
 	return viper.ReadInConfig()
 }
 
+//SetENV set env
 func SetENV() {
 
 	if err := ReadConfig(); err != nil {
@@ -58,7 +60,7 @@ func SetENV() {
 	}
 }
 
-//emptyPanic
+//emptyPanic get config value
 func emptyPanic(key string) string {
 	v := viper.GetString(key)
 	if v == "" {
@@ -67,6 +69,7 @@ func emptyPanic(key string) string {
 	return v
 }
 
+//mustGetenv get os env value
 func mustGetenv(k string) string {
 	v := os.Getenv(k)
 	if v == "" {

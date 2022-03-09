@@ -21,6 +21,7 @@ type resetPassword struct {
 //ResetPassword
 func ResetPassword(c *gin.Context) {
 
+	//request
 	r := &resetPassword{}
 	if err := c.Bind(r); err != nil {
 
@@ -28,7 +29,7 @@ func ResetPassword(c *gin.Context) {
 		return
 	}
 
-	//
+	//verify password rules
 	if err := VerifyPassword(r.New); err != nil {
 
 		c.JSON(http.StatusBadRequest, response.Error(err.Error()))
@@ -36,7 +37,7 @@ func ResetPassword(c *gin.Context) {
 	}
 
 	email := c.Request.Header.Get(storage.StorageKey.Email)
-
+	//get user
 	user, err := db.WhereFirst(db.MainSession, c, db.User{Email: email, Password: r.Old})
 	if err != nil {
 
@@ -49,6 +50,7 @@ func ResetPassword(c *gin.Context) {
 		return
 	}
 
+	//update password
 	if err := user.UpdatePassword(db.MainSession, c, r.New); err != nil {
 
 		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))

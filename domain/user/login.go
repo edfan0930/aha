@@ -26,6 +26,7 @@ type (
 //Login
 func Login(c *gin.Context) {
 
+	//login request struct
 	r := &LoginRequest{}
 	if err := c.Bind(r); err != nil {
 
@@ -33,6 +34,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	//get user
 	user, err := db.WhereFirst(db.MainSession, c, db.User{Email: r.Email, Password: r.Password})
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -44,6 +46,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	//save session storage
 	session := storage.NewSession(storage.PassSecure(c.Request))
 	if err := session.Login(c.Writer, c.Request, user.Email, user.Name, user.Verified); err != nil {
 
@@ -51,6 +54,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	//redirect to revalidate if doesn't pass validation
 	if !user.Verified {
 
 		c.Redirect(http.StatusSeeOther, "/revalidate")
@@ -60,9 +64,10 @@ func Login(c *gin.Context) {
 	c.Redirect(http.StatusSeeOther, "/dashboard/profile")
 }
 
-//OauthLogin
+//OauthLogin oauth2 login method
 func OauthLogin(c *gin.Context) {
 
+	//
 	if user, err := gothic.CompleteUserAuth(c.Writer, c.Request); err == nil {
 
 		u, err := db.First(db.MainSession, c, user.Email)
@@ -72,6 +77,7 @@ func OauthLogin(c *gin.Context) {
 			return
 		}
 
+		//save session storage
 		session := storage.NewSession(storage.PassSecure(c.Request))
 		if err := session.Login(c.Writer, c.Request, user.Email, u.Name, true); err != nil {
 
@@ -82,5 +88,6 @@ func OauthLogin(c *gin.Context) {
 		c.Redirect(http.StatusSeeOther, "/dashboard/profile")
 	}
 
+	//begin auth handler
 	gothic.BeginAuthHandler(c.Writer, c.Request)
 }

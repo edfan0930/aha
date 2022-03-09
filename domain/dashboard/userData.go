@@ -8,9 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//UserStatistics
+//UserData
 func UserData(c *gin.Context) {
 
+	//users statistics
 	statistics, err := db.UserStatistics()
 	if err != nil {
 
@@ -18,7 +19,13 @@ func UserData(c *gin.Context) {
 		return
 	}
 
+	//user list
 	userList, err := db.UserList()
+	if err != nil {
+
+		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
+		return
+	}
 
 	c.HTML(http.StatusOK, "dashboard.html", gin.H{
 		"total_signed_up": statistics.Total,

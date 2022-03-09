@@ -7,8 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+//Home
 func Home(c *gin.Context) {
 
+	//verify session
 	session, err := storage.UserHandler(c.Request)
 	if err != nil {
 
@@ -16,7 +18,9 @@ func Home(c *gin.Context) {
 		return
 	}
 
+	//session methods
 	s := storage.NewSession(session)
+	//get email value
 	email := s.GetEmail(c.Request)
 	if email == "" {
 
@@ -24,6 +28,7 @@ func Home(c *gin.Context) {
 		return
 	}
 
+	//get verified value
 	verified := s.GetVerified(c.Request)
 	if verified == "" || verified == "false" {
 
@@ -31,6 +36,6 @@ func Home(c *gin.Context) {
 		return
 	}
 
+	//redirect to profile if login already and pass validate
 	c.Redirect(http.StatusSeeOther, "/dashboard/profile")
-
 }
