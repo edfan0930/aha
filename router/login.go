@@ -22,7 +22,7 @@ func Login(r *gin.Engine) {
 	})
 
 	//驗證mail
-	login.GET("/verification", user.Verification)
+	//	login.GET("/verification", user.Verification)
 
 	//oauth2 login
 	login.GET("/:provider", user.OauthLogin)

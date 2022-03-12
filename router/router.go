@@ -21,6 +21,9 @@ func InitRouter() {
 	//main page
 	r.GET("/", user.Home)
 
+	//驗證mail
+	r.GET("/verification", user.Verification)
+
 	signup := r.Group("/signup", HasLogged())
 	//signup view
 	signup.GET("", func(c *gin.Context) {

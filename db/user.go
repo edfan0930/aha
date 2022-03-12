@@ -70,6 +70,7 @@ func (u *User) Signup(password, verifyToken string) *User {
 	u.Password = password
 	u.VerifyToken = verifyToken
 	u.SessionAt = utils.GetDateNow()
+	u.LoggedIn = 1
 	return u
 }
 

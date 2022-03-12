@@ -64,6 +64,7 @@ func (s *Session) Login(w http.ResponseWriter, r *http.Request, email, name stri
 func (s *Session) Verified(w http.ResponseWriter, r *http.Request) error {
 
 	s.SetValue(StorageKey.Verified, "true")
+	s.ResetMaxAge()
 	return s.Save(w, r)
 }
 
