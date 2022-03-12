@@ -11,11 +11,16 @@ import (
 
 func main() {
 
+	//set env
 	env.SetENV()
-	email.InitEmail(env.Email)
+	//email set global
+	email.InitEmail(env.Email, env.ServerDomain+router.PathVerfication)
+	//database init
 	db.InitDB(env.DBAccount, env.DBPassword, env.SocketDir, env.DBConnectName, env.DBName)
+	//set oauth2 provider callback URI
 	oauth2.SetProvider(env.ServerDomain + "/callback")
+	//set session key
 	oauth2.SetStore(storage.Store.Key)
+	//router init
 	router.InitRouter()
-
 }

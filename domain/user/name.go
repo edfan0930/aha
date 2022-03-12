@@ -15,7 +15,7 @@ type (
 	}
 )
 
-//UpdateName
+//ResetName
 func ResetName(c *gin.Context) {
 
 	email := c.Request.Header.Get("email")
@@ -37,7 +37,7 @@ func ResetName(c *gin.Context) {
 
 		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
 		return
-}
+	}
 
 	session := storage.NewSession(storage.PassSecure(c.Request))
 	session.SetValue("name", u.Name).Save(c.Writer, c.Request)

@@ -9,6 +9,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	PathSignup        = "/signup"
+	PathLogin         = "/login"
+	PathVerfication   = "/login/verification"
+	PathOauthLogin    = "/login/:provider"
+	PathDashBoard     = "/dashboard"
+	PathProfile       = "/dashboard/profile"
+	PathOauthCallback = "/callback/:provider"
+	PathUser          = "/user"
+	PathPassword      = "/user/password"
+	PathName          = "/user/name"
+	PathLogout        = "/user/logout"
+)
+
 //initRouter initializes router
 func InitRouter() {
 

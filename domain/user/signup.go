@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"unicode"
 
-	"github.com/edfan0930/aha/env"
-
 	"github.com/edfan0930/aha/common/email"
 	"github.com/edfan0930/aha/common/storage"
 	"github.com/edfan0930/aha/domain/response"
@@ -52,12 +50,13 @@ func Signup(c *gin.Context) {
 		return
 	}
 
-	// email.VerificationEmail(r.Email)
 	e := email.NewEmail(r.Email)
-	query := fmt.Sprintf("token=%s&account=%s", token, user.Email)
+	e.SetQuery(token, user.Email).SetURI()
+	if err := e.VerificationEmail(); err != nil {
 
-	e.SetURI(env.ServerDomain+"/verification", query)
-	e.VerificationEmail()
+		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
+		return
+	}
 
 	session := storage.NewSession(storage.PassSecure(c.Request))
 	if err := session.Login(c.Writer, c.Request, r.Email, "", false); err != nil {

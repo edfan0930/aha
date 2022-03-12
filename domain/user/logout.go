@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//Logout
+//Logout delete session storage
 func Logout(c *gin.Context) {
 
 	s := storage.NewSession(storage.PassSecure(c.Request))
