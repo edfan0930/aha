@@ -23,7 +23,7 @@ type (
 	}
 )
 
-//Signup
+//Signup user defined
 func Signup(c *gin.Context) {
 
 	r := NewSignupConfirm()
@@ -38,18 +38,22 @@ func Signup(c *gin.Context) {
 		return
 	}
 
+	//gener uuid for token
 	token := utils.GenerUUID()
 	if token == "" {
 		c.JSON(http.StatusInternalServerError, response.Error("gener uuid error"))
 		return
 	}
 
+	//insert user
 	user := db.NewUser(r.Email).Signup(r.Password, token)
 	if err := user.Create(db.MainSession, c); err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+
+		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
 		return
 	}
 
+	//email
 	e := email.NewEmail(r.Email)
 	e.SetQuery(token, user.Email).SetURI()
 	if err := e.VerificationEmail(); err != nil {
@@ -58,6 +62,7 @@ func Signup(c *gin.Context) {
 		return
 	}
 
+	//session storage
 	session := storage.NewSession(storage.PassSecure(c.Request))
 	if err := session.Login(c.Writer, c.Request, r.Email, "", false); err != nil {
 

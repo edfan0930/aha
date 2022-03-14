@@ -13,14 +13,14 @@ func User(r *gin.Engine) {
 	u := r.Group("/user", VerfySession(), Verified())
 
 	//reset password
-	//put
+	//normally it must be "put method"
 	u.POST("/password", user.ResetPassword)
 
 	//reset password
 	u.GET("/password-view", user.ResetPasswordView)
 
 	//update name
-	//put
+	//normally it must be "put method"
 	u.POST("/name", user.ResetName)
 
 	//reset name view

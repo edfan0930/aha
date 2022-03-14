@@ -25,14 +25,15 @@ func Verification(c *gin.Context) {
 	r := new(verification)
 	if err := c.BindQuery(r); err != nil {
 
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, response.Error(err.Error()))
 		return
 	}
 
 	//update user to verified
 	user := db.NewUser(r.Account)
 	if err := user.UpdateVerified(db.MainSession, c, r.Token); err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+
+		c.JSON(http.StatusBadRequest, response.Error(err.Error()))
 		return
 	}
 
@@ -66,7 +67,7 @@ func ResendEmail(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, response.Error(err.Error()))
 	}
 
-	//
+	//email
 	e := email.NewEmail(r)
 	e.SetQuery(user.VerifyToken, user.Email).SetURI()
 	if err := e.VerificationEmail(); err != nil {
