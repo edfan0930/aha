@@ -11,7 +11,7 @@ import (
 
 type (
 	updateName struct {
-		Name string `json:"name" form:"name"`
+		Name string `json:"name" form:"name" binding:"required"`
 	}
 )
 
